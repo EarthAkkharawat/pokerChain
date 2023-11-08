@@ -10,7 +10,6 @@ import './utils.sol';
  */
 library PokerUtils {
     uint8 private constant nCards = 52;
-    
     uint8 private constant HIGH_CARD = 0;
 	uint8 private constant ONE_PAIR = 1;
 	uint8 private constant TWO_PAIR = 2;
@@ -20,14 +19,14 @@ library PokerUtils {
 	uint8 private constant FULL_HOUSE = 6;
 	uint8 private constant FOUR_OF_A_KIND = 7;
 	uint8 private constant STRAIGHT_FLUSH = 8;
-
+    uint8 private constant ROYAL_FLUSH = 9;
 	uint256 private constant TOTAL_5_CARD_COMBINATIONS = 52 ** 5;
 	
 	function calcHandRank(uint256 hand, uint8 combination) pure internal returns(uint256) {
 	    return TOTAL_5_CARD_COMBINATIONS * combination + hand;
 	}
     
-    
+    // check if all N cards have the same number
     function checkNCardsEqual(uint256 hand, uint8 size, uint8 offset) pure internal returns(bool) {
         uint8 goldenCardId = nCards;
         for(uint i = 0; i < 5; ++i) {
@@ -46,7 +45,8 @@ library PokerUtils {
         }
         return true;
     }
-    
+
+    // check if all 5 cards have the same sign
     function checkFlush(uint256 hand) pure internal returns(bool) {
         uint8 goldenType = nCards;
         for(uint i = 0; i < 5; ++i) {
@@ -64,7 +64,7 @@ library PokerUtils {
         return true;
     }
     
-    
+    // check if all 5 cards are consecutive number
     function checkStraight(uint256 hand) pure internal returns(bool) {
         uint8 lastId = nCards;
         for(uint i = 0; i < 5; ++i) {
@@ -77,6 +77,18 @@ library PokerUtils {
                 }
             }
             lastId = cardId;
+        }
+        return true;
+    }
+
+    // check if all 5 card is either 10,J,Q,K,A (special case for royal flush)
+    function checkTJQKA(uint256 hand) pure internal returns(bool) {
+        for(uint i = 0; i < 5; ++i) {
+            uint8 cardRank = uint8(hand % nCards) / 4;
+            if (cardRank < 8 || cardRank > 12) {
+                return false;
+            }
+            hand = hand / nCards;
         }
         return true;
     }
@@ -116,6 +128,9 @@ library PokerUtils {
         
         if (claimedCombination == STRAIGHT_FLUSH) {
             return checkStraight(claimedHand) && checkFlush(claimedHand);
+        }
+        if (claimedCombination == ROYAL_FLUSH) {
+            return checkStraight(claimedHand) && checkFlush(claimedHand) && checkTJQKA(claimedHand);
         }
         return false;
     }
