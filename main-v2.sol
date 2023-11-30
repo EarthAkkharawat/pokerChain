@@ -15,6 +15,7 @@ contract PokerChain {
         uint256[] playerBetAmounts;
         uint256[] ranks;
         uint256[] deck;
+        uint256[] communityCards;
         uint256 pot;
         uint256 randomSeed;
         uint256 matchStartTime;
@@ -188,6 +189,11 @@ contract PokerChain {
                 game.playerCards[playerId].push(card);
             }
         }
+        for (uint i = 0; i < 5; i++) {
+            uint256 card = drawCard(gameId, seed);
+            game.communityCards.push(card);
+        }
+
         // Big blind and Small blind initial bet
         address bigBlindPlayer = game.players[game.bigBlindPlayer];
         address smallBlindPlayer = game.players[game.smallBlindPlayer];
@@ -225,6 +231,16 @@ contract PokerChain {
         }
 
         game.currentPlayerIndex = (game.currentPlayerIndex + 1) % MAX_PLAYERS;
+    }
+
+    function flop(uint8 gameId) public onlyState(gameId, GameStatus.PreFlop) returns (
+        uint256 firstCard,
+        uint256 secondCard,
+        uint256 thirdCard
+    ){
+        Game storage game = games[gameId];
+        game.status = GameStatus.Flop;
+        return (game.communityCards[0], game.communityCards[1], game.communityCards[2]);
     }
 
     function foldHand() public {
