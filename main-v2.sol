@@ -248,6 +248,94 @@ contract PokerChain {
         return (game.communityCards[0], game.communityCards[1], game.communityCards[2]);
     }
 
+    /*
+        Function to reveal 4 community cards
+        @param : gameId
+    */
+    function turn(uint8 gameId) public onlyState(gameId, GameStatus.Flop) returns (
+        uint256 firstCard,
+        uint256 secondCard,
+        uint256 thirdCard,
+        uint256 fourthCard
+    ){
+        Game storage game = games[gameId];
+        game.status = GameStatus.Turn;
+        game.currentPlayerIndex = 0;
+        return (game.communityCards[0], game.communityCards[1], game.communityCards[2], game.communityCards[3]);
+    }
+
+    /*
+        Function to reveal 5 community cards
+        @param : gameId
+    */
+    function River(uint8 gameId) public onlyState(gameId, GameStatus.Turn) returns (
+        uint256 firstCard,
+        uint256 secondCard,
+        uint256 thirdCard,
+        uint256 fourthCard,
+        uint256 FifthCard
+    ){
+        Game storage game = games[gameId];
+        game.status = GameStatus.Turn;
+        game.currentPlayerIndex = 0;
+        return (game.communityCards[0], game.communityCards[1], game.communityCards[2], game.communityCards[3], game.communityCards[4]);
+    }
+
+    /*
+        Function to reward and reset game
+        @param : gameId
+    */
+    function showdown(uint8 gameId) public onlyState(gameId, GameStatus.River) returns () {
+        Game storage game = games[gameId];
+        uint256 maxRank = 0;
+        uint256 winner = 0;
+        for (uint i=0; i<MAX_PLAYERS; i++){
+            address player = game.players[i];
+            // TODO
+            game.ranks[i] = PokerUtils.checkCardsCombination(playerCards[player], game.communityCards);
+            if (game.ranks[i] > maxRank){
+                maxRank = game.ranks[i];
+                winner = i;
+            }
+        }
+        
+        require(msg.sender != address(0x0) && msg.sender != address(this), "Invalid address");
+        playerChips[game.players[winner]] += game.pot;
+        _transfer(msg.sender, playerChips[msg.sender]);
+        
+        _resetGame();
+
+    }
+
+    function _resetGame() internal {
+        Game storage game = games[gameId];
+        game.smallBlindAmount = 0;
+        game.bigBlindAmount = 0;
+        game.bigBlindPlayer = 0;
+        game.smallBlindPlayer = 0;
+        game.minBuyIn = 0;
+        game.maxBuyIn = 0;
+        game.verifiedPlayerCount = 0;
+        game.pot = 0;
+        game.currentBet = 0;
+        game.currentPlayerIndex = 0;
+        game.status = GameStatus.AwaitingToStart;
+        game.playerActions.length = 0;
+        game.playerBetAmounts.length = 0;
+        game.ranks.length = 0;
+        game.deck.length = 0;
+        game.communityCards.length = 0;
+        bigBlindPlayerId = 0;
+        _resetPlayerCards();
+    }
+
+    function _resetPlayerCards() internal {
+        Game storage game = games[gameId];
+        for (uint i = 0; i < game.players.length; i++) {
+            game.playerCards[game.players[i]].length = 0;
+        }
+    }
+
     function foldHand() public {
 
     }
