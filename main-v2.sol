@@ -233,6 +233,10 @@ contract PokerChain {
         game.currentPlayerIndex = (game.currentPlayerIndex + 1) % MAX_PLAYERS;
     }
 
+    /*
+        Function to reveal 3 community cards
+        @param : gameId
+    */
     function flop(uint8 gameId) public onlyState(gameId, GameStatus.PreFlop) returns (
         uint256 firstCard,
         uint256 secondCard,
@@ -240,6 +244,7 @@ contract PokerChain {
     ){
         Game storage game = games[gameId];
         game.status = GameStatus.Flop;
+        game.currentPlayerIndex = 0;
         return (game.communityCards[0], game.communityCards[1], game.communityCards[2]);
     }
 
