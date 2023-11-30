@@ -16,7 +16,10 @@ contract PokerChain {
         uint256 pot;
         uint256 randomSeed;
         uint256 matchStartTime;
-        uint256 smallBlind;
+        uint256 smallBlindAmount;
+        uint256 bigBlindAmount;
+        uint256 smallBlindPlayer;
+        uint256 bigBlindPlayer;
         uint256 minBuyIn;
         uint256 maxBuyIn;
         uint256 lastBet;
@@ -48,17 +51,24 @@ contract PokerChain {
         FullHouse,
         FourOfAKind,
         StraightFlush,
-        RoyalFlush
+        RoyalStraightFlush
     }
 
     address private owner;
     uint256 private commission; // pay to our system
     uint256 private nextGameId; 
+    uint256 private bigBlindPlayerId; 
     uint8 private constant MAX_PLAYERS = 2;
     uint8 private constant TOTAL_CARDS = 52;
     
     modifier onlyOwner() {
         require(msg.sender == owner, "Not contract owner");
+        _;
+    }
+
+    modifier onlyState(uint256 gameId, GameStatus state) {
+        Game storage game = games[gameId];
+        require(game.status == state, "Invalid state");
         _;
     }
 
@@ -76,7 +86,10 @@ contract PokerChain {
         uint256 gameId = nextGameId++;
         Game storage newGame = games[gameId];
         newGame.owner = msg.sender;
-        newGame.smallBlind = smallBlind;
+        newGame.smallBlindAmount = smallBlind;
+        newGame.bigBlindAmount = smallBlind * 2;
+        newGame.bigBlindPlayer = (bigBlindPlayerId++) % MAX_PLAYERS;
+        newGame.smallBlindPlayer = (1 + bigBlindPlayerId++) % MAX_PLAYERS;
         newGame.minBuyIn = minBuyIn;
         newGame.maxBuyIn = maxBuyIn;
         newGame.status = GameStatus.Create;
@@ -92,9 +105,9 @@ contract PokerChain {
         _joinGame(gameId, playerHash);
     }
 
-    function _joinGame(uint256 gameId, bytes32 playerHash) internal {
+    function _joinGame(uint256 gameId, bytes32 playerHash) internal onlyState(gameId, GameStatus.Create) {
         Game storage game = games[gameId];
-        require(game.status == GameStatus.Create, "Game not in correct state");
+        // require(game.status == GameStatus.Create, "Game not in correct state");
         require(msg.value >= commission + game.minBuyIn && msg.value <= commission + game.maxBuyIn, "Deposit amount must not less than minBuyIn and not more than MaxBuyIn");
         require(game.players.length < MAX_PLAYERS, "Game is full");
 
@@ -107,7 +120,14 @@ contract PokerChain {
         if (game.verifiedPlayerCount == MAX_PLAYERS) {
             game.verifiedPlayerCount = 0;
             game.status = GameStatus.AwaitingToStart;
-            payable(owner).transfer(MAX_PLAYERS * commission); // pay commission to us
+            _transfer(owner, commission); // pay commission to us
+        }
+    }
+
+    function _transfer(address to, uint256 amount) internal {
+        (bool success, ) = to.call{value: amount}(new bytes(0));
+        if (!success) {
+            revert("Transfer error");
         }
     }
 
@@ -122,9 +142,9 @@ contract PokerChain {
         return card;
     }
 
-    function startGame(uint8 gameId, uint256 seed) public onlyOwner {
+    function startGame(uint8 gameId, uint256 seed) public onlyOwner onlyState(gameId, GameStatus.AwaitingToStart) {
         Game storage game = games[gameId];
-        require(game.status == GameStatus.AwaitingToStart, "Game not in correct state");
+        // require(game.status == GameStatus.AwaitingToStart, "Game not in correct state");
 
         game.status = GameStatus.PreFlop;
         // deal the card
@@ -135,7 +155,14 @@ contract PokerChain {
                 game.playerCards[playerId].push(card);
             }
         }
-
+        // Big blind and Small blind initial bet
+        address bigBlindPlayer = game.players[game.bigBlindPlayer];
+        address smallBlindPlayer = game.players[game.smallBlindPlayer];
+        require(game.playerChips[bigBlindPlayer] >= game.bigBlindAmount, "Insufficient balance");
+        require(game.playerChips[smallBlindPlayer] >= game.smallBlindAmount, "Insufficient balance");
+        game.playerChips[bigBlindPlayer] -= game.bigBlindAmount;
+        game.playerChips[smallBlindPlayer] -= game.smallBlindAmount;
+        game.pot += game.bigBlindAmount + game.smallBlindAmount;
     }
 
     function foldHand() public {
