@@ -9,8 +9,10 @@ contract PokerChain {
         address[] players;
         mapping(address => bytes32) playerStates;
         mapping(address => uint256) playerChips;
+        mapping(address => uint256[]) playerCards;
         mapping(address => uint8) cardMasks;
         uint256[] ranks;
+        uint256[] deck;
         uint256 pot;
         uint256 randomSeed;
         uint256 matchStartTime;
@@ -78,7 +80,10 @@ contract PokerChain {
         newGame.minBuyIn = minBuyIn;
         newGame.maxBuyIn = maxBuyIn;
         newGame.status = GameStatus.Create;
-        
+        for (uint256 i = 0; i < 52; i++) {
+            newGame.deck.push(i);
+        }
+
         _joinGame(gameId, playerHash);
         return gameId;
     }
@@ -106,12 +111,31 @@ contract PokerChain {
         }
     }
 
-    function startGame(uint8 gameId) public onlyOwner {
+    function drawCard(uint256 gameId, uint256 seed) internal returns (uint256) {
+        Game storage game = games[gameId];
+        require(game.deck.length > 0, "No more cards in the deck");
+        uint256 randomIndex = uint256(keccak256(abi.encodePacked(seed, block.timestamp, block.difficulty))) % game.deck.length;
+        uint256 card = game.deck[randomIndex];
+        game.deck[randomIndex] = game.deck[game.deck.length - 1];
+        game.deck.pop();
+
+        return card;
+    }
+
+    function startGame(uint8 gameId, uint256 seed) public onlyOwner {
         Game storage game = games[gameId];
         require(game.status == GameStatus.AwaitingToStart, "Game not in correct state");
 
         game.status = GameStatus.PreFlop;
         // deal the card
+        for (uint i = 0; i < games[gameId].players.length; i++) {
+            address playerId = games[gameId].players[i];
+            for (uint j = 0; j < 2; j++) {
+                uint256 card = drawCard(gameId, seed);
+                game.playerCards[playerId].push(card);
+            }
+        }
+
     }
 
     function foldHand() public {
