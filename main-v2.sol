@@ -285,29 +285,32 @@ contract PokerChain {
         Function to reward and reset game
         @param : gameId
     */
-    function showdown(uint8 gameId) public onlyState(gameId, GameStatus.River) returns () {
+    function showdown(uint8 gameId) public onlyState(gameId, GameStatus.River) {
         Game storage game = games[gameId];
         uint256 maxRank = 0;
         uint256 winner = 0;
         for (uint i=0; i<MAX_PLAYERS; i++){
             address player = game.players[i];
             // TODO
-            game.ranks[i] = PokerUtils.checkCardsCombination(playerCards[player], game.communityCards);
+            game.ranks[i] = PokerUtils.checkCardsCombination(game.playerCards[player], game.communityCards);
             if (game.ranks[i] > maxRank){
                 maxRank = game.ranks[i];
                 winner = i;
             }
         }
         
-        require(msg.sender != address(0x0) && msg.sender != address(this), "Invalid address");
-        playerChips[game.players[winner]] += game.pot;
-        _transfer(msg.sender, playerChips[msg.sender]);
-        
-        _resetGame();
+        game.playerChips[game.players[winner]] += game.pot;
+        // TODO
+
+        // for (uint i=0; i < MAX_PLAYERS; i++){
+        //     _transfer(game.players[i], playerChips[game.players[i]]);
+        // } 
+
+        _resetGame(gameId);
 
     }
 
-    function _resetGame() internal {
+    function _resetGame(uint8 gameId) internal {
         Game storage game = games[gameId];
         game.smallBlindAmount = 0;
         game.bigBlindAmount = 0;
@@ -326,10 +329,10 @@ contract PokerChain {
         game.deck.length = 0;
         game.communityCards.length = 0;
         bigBlindPlayerId = 0;
-        _resetPlayerCards();
+        _resetPlayerCards(gameId);
     }
 
-    function _resetPlayerCards() internal {
+    function _resetPlayerCards(uint8 gameId) internal {
         Game storage game = games[gameId];
         for (uint i = 0; i < game.players.length; i++) {
             game.playerCards[game.players[i]].length = 0;
