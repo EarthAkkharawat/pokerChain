@@ -1,3 +1,3 @@
-/game-logic/artifacts
-artifacts/
+/game-logic/artifacts/*
+artifacts/*
 .DS_Store
