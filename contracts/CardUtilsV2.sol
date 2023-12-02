@@ -295,33 +295,20 @@ library CardUtils {
         for (i = 12; i >= 0; i--) {
             if (rankCounts[i] >= n) {
                 // Found N of a Kind
-                uint8 count = 0;
-                uint8 remainingCount = 0;
+                uint8 counter = 0;
+                uint8 index = 0;
+                uint8 freeCard = 0;
 
-                // Add the N cards of the same rank
-                for (uint8 j = 0; j < hand.length && count < n; j++) {
-                    if (getRank(hand[j]) == i) {
-                        bestHand[count] = hand[j];
-                        count++;
+                for (uint8 j = 0; j < hand.length && counter < 5; j++) {
+                    if (counter < n && getRank(hand[j]) == i) {
+                        bestHand[index] = hand[j];
+                        counter++;
+                        index++;
                     }
-                }
-
-                // Add the next 5-n highest cards
-                for (uint8 j = 0; j < hand.length && remainingCount < 5 - n; j++) {
-                    // if (getRank(hand[j]) != i) {
-                    //     bestHand[count + remainingCount] = hand[j];
-                    //     remainingCount++;
-                    // }
-                    bool dup = false;
-                    for (uint8 k = 0; k < n; k++) {
-                        if (getRank(hand[j]) == bestHand[k]) {
-                            dup = true;
-                            break;
-                        }
-                    }
-                    if (!dup) {
-                        bestHand[count + remainingCount] = hand[j];
-                        remainingCount++;
+                    else if (freeCard < 5 - n) {
+                        bestHand[index] = hand[j];
+                        freeCard++;
+                        index++;
                     }
                 }
                 return (true, bestHand);
