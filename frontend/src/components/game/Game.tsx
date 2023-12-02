@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import pokerGameABI from '../../utils/pokerContractABI.json';
 import { useParams } from 'react-router-dom';
-
-const contractAddress = "0xed27012c24FDa47A661De241c4030ecB9D18a76d"; // Your contract address
+import { getEthereumContract } from '../../utils/contracts';
 
 const PokerTablePage: React.FC = () => {
   const [players, setPlayers] = useState<any[]>([]);
@@ -13,15 +11,14 @@ const PokerTablePage: React.FC = () => {
     try {
       // Ensure Ethereum object and provider are available
       if (window.ethereum) {
-        const provider = new ethers.BrowserProvider(window.ethereum)
-        const contract = new ethers.Contract(contractAddress, pokerGameABI, provider);
+        const contract = await getEthereumContract();
         console.log(contract);
 
         // Call the getPlayers function from your contract
         const gameIdNumber = Number(gameId);
         console.log(gameIdNumber);
-        const playersList = await contract.getPlayers(gameIdNumber - 1);
-
+        const playersList = await contract.getPlayers(gameIdNumber);
+        console.log(playersList);
         // Ensure playersList is an array before setting the state
         if (Array.isArray(playersList)) {
           setPlayers(playersList);

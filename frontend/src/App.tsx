@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import Login from './components/login/Login';
 import GameTable from './components/table/Table';
 import Game from './components/game/Game';
-import ProtectedRoute from './protectedRoute';
+import ProtectedRoute from './components/protectedRoute';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
