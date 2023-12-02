@@ -254,30 +254,35 @@ library CardUtils {
 
     function isStraight(uint8[] memory hand) public pure returns (bool, uint8[] memory bestHand) {
         bestHand = new uint8[](5);
-        uint8 lastRank = getRank(hand[0]);
-        uint8 counter = 1;
-        uint8 index = 0;
-        for (uint8 i = 1; i < hand.length; i++) {
+        uint8 lastRank;
+        uint8 counter = 0;
+        for (uint8 i = 0; i < hand.length; i++) {
             uint8 currentRank = getRank(hand[i]);
-            if (currentRank == lastRank - 1) {
+            if (counter == 0) {
+                // isAce = currentRank == 12 ? j : 255;
+                lastRank = currentRank;
+                bestHand[counter] = hand[i];
+                counter++; 
+            }
+            else if (currentRank == lastRank - 1) {
+                lastRank = currentRank;
+                bestHand[counter] = hand[i];
                 counter++;
-                bestHand[index] = hand[i];
-                index++;
             }
-            else if (currentRank != lastRank) {
-                bestHand[0] = hand[i];
-                index = 1;
-                counter = 1;
+            // else if (currentRank == 0 && counter == 4 && isAce!=255) {
+            //     bestHand[counter] = hand[isAce];
+            //     counter++;
+            // }
+            else {
+                counter = 0;
+                lastRank = currentRank;
+                bestHand[counter] = hand[0];
+                counter++;
             }
-            lastRank = currentRank;
             if (counter == 5) {
                 return (true, bestHand);
             }
         }
-        // if (counter == 4 && lastRank == 0 && getRank(hand[i]) == 12) {
-        //     bestHand[index] = hand[0];
-        //     return (true, bestHand);
-        // }
         return (false, bestHand);
     }
 
