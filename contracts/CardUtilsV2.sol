@@ -71,7 +71,7 @@ library CardUtils {
         return (bestHands, winnerIndices);
     }
 
-    function getHandScore(uint8[] memory hand) internal pure returns (uint40) {
+    function getHandScore(uint8[] memory hand) public pure returns (uint40) {
         uint8[] memory bestHand;
         bool passCondition;
         (passCondition, bestHand) = isRoyalFlush(hand);     if (passCondition) { return encodeHand(bestHand, 9); }
@@ -111,7 +111,7 @@ library CardUtils {
         return winnerIndices;
     }
 
-    function isRoyalFlush(uint8[] memory hand) internal pure returns (bool, uint8[] memory bestHand) {
+    function isRoyalFlush(uint8[] memory hand) public pure returns (bool, uint8[] memory bestHand) {
         bestHand = new uint8[](5);
         uint8[5] memory royalRanks = [12, 11, 10, 9, 8];
         uint8 counter;
@@ -131,7 +131,7 @@ library CardUtils {
         return (false, bestHand);
     }
 
-    function isStraightFlush(uint8[] memory hand) internal pure returns (bool, uint8[] memory bestHand) {
+    function isStraightFlush(uint8[] memory hand) public pure returns (bool, uint8[] memory bestHand) {
         bestHand = new uint8[](5);
         uint8 counter;
         uint8 lastRank;
@@ -174,7 +174,7 @@ library CardUtils {
         return (false, bestHand);
     }
 
-    function isFullHouse(uint8[] memory hand) internal pure returns (bool, uint8[] memory bestHand) {
+    function isFullHouse(uint8[] memory hand) public pure returns (bool, uint8[] memory bestHand) {
         bestHand = new uint8[](5);
         uint8[] memory rankCounts = new uint8[](13);
         uint8 i;
@@ -229,7 +229,7 @@ library CardUtils {
         return (false, bestHand);
     }
 
-    function isFlush(uint8[] memory hand) internal pure returns (bool, uint8[] memory bestHand) {
+    function isFlush(uint8[] memory hand) public pure returns (bool, uint8[] memory bestHand) {
         bestHand = new uint8[](5);
         uint8 i;
         uint8[4] memory suitCounts = [0, 0, 0, 0];
@@ -252,7 +252,7 @@ library CardUtils {
         return (false, bestHand);
     }
 
-    function isStraight(uint8[] memory hand) internal pure returns (bool, uint8[] memory bestHand) {
+    function isStraight(uint8[] memory hand) public pure returns (bool, uint8[] memory bestHand) {
         bestHand = new uint8[](5);
         uint8 lastRank = getRank(hand[0]);
         uint8 counter = 1;
@@ -281,7 +281,7 @@ library CardUtils {
         return (false, bestHand);
     }
 
-    function isNOfAKind(uint8[] memory hand, uint8 n) internal pure returns (bool, uint8[] memory bestHand) {
+    function isNOfAKind(uint8[] memory hand, uint8 n) public pure returns (bool, uint8[] memory bestHand) {
         require(0 < n && n < 5, "N must be between 1 and 4");
         bestHand = new uint8[](5);
         uint8[] memory rankCounts = new uint8[](13);
@@ -331,7 +331,7 @@ library CardUtils {
         return (false, bestHand);
     }
 
-    function isTwoPair(uint8[] memory hand) internal pure returns (bool, uint8[] memory bestHand) {
+    function isTwoPair(uint8[] memory hand) public pure returns (bool, uint8[] memory bestHand) {
         bestHand = new uint8[](5);
         uint8[] memory rankCounts = new uint8[](13);
         uint8 i;
