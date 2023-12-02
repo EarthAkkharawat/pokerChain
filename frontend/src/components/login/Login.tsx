@@ -13,13 +13,9 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
     const connectWallet = async () => {
         if (window.ethereum) {
             try {
-                // Request account access if needed
                 await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-                // Create a new provider
                 const provider = new ethers.BrowserProvider(window.ethereum)
                 
-                // Get the signer to access the connected account
                 const signer = await provider.getSigner();
                 const accountAddress = await signer.getAddress();
 

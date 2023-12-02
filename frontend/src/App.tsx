@@ -12,7 +12,6 @@ function App() {
   );
 
   useEffect(() => {
-    // Update sessionStorage when isAuthenticated changes
     sessionStorage.setItem('isAuthenticated', isAuthenticated.toString());
   }, [isAuthenticated]);
 
