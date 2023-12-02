@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";
 import { getEthereumContract } from "../../utils/contracts";
-import { parseEther } from "@ethersproject/units";
 
 const GameTable: React.FC = () => {
   const navigate = useNavigate();
@@ -39,7 +38,6 @@ const GameTable: React.FC = () => {
       setGameList((prevGameList) => [...prevGameList, prevGameList.length]);
     //   navigate("/table/" + gameList.length);
 
-      // Add any post-transaction logic here
     } catch (error) {
       console.error("Error creating table:", error);
     }

@@ -16,10 +16,9 @@ const Modal: FC<ModalProps> = ({ children, onClose }) => {
   );
 };
 
-// Updated styles with specific types for CSS properties
 const styles = {
   backdrop: {
-    position: 'fixed' as const, // Using 'as const' for specific CSS property types
+    position: 'fixed' as const,
     top: 0,
     left: 0,
     width: '100%',
@@ -37,12 +36,12 @@ const styles = {
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     minWidth: '300px',
     minHeight: '200px',
-    display: 'flex' as const, // Explicit type for 'display'
-    flexDirection: 'column' as const, // Explicit type for 'flexDirection'
-    alignItems: 'center' as const, // Explicit type for 'alignItems'
+    display: 'flex' as const, 
+    flexDirection: 'column' as const, 
+    alignItems: 'center' as const,
   },
   closeButton: {
-    alignSelf: 'flex-end' as const, // Explicit type for 'alignSelf'
+    alignSelf: 'flex-end' as const,
     background: 'none',
     border: 'none',
     fontSize: '16px',
