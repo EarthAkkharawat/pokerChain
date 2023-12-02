@@ -140,17 +140,15 @@ library CardUtils {
         for (uint8 i = 3; i >= 0; i--) {
             counter = 0;
             // isAce = 255;
-            for (uint8 j = 0; j < hand.length && counter < 5; j++) {
+            for (uint8 j = 0; j < hand.length; j++) {
                 if (getSuit(hand[j]) == i) {
                     currentRank = getRank(hand[j]);
                     if (counter == 0) {
                         // isAce = currentRank == 12 ? j : 255;
-                        lastRank = currentRank;
                         bestHand[counter] = hand[j];
                         counter++; 
                     }
                     else if (currentRank == lastRank - 1) {
-                        lastRank = currentRank;
                         bestHand[counter] = hand[j];
                         counter++;
                     }
@@ -160,10 +158,10 @@ library CardUtils {
                     // }
                     else {
                         counter = 0;
-                        lastRank = currentRank;
                         bestHand[counter] = hand[j];
                         counter++;
                     }
+                    lastRank = currentRank;
                     if (counter == 5) {
                         return (true, bestHand);
                     }
@@ -260,12 +258,10 @@ library CardUtils {
             uint8 currentRank = getRank(hand[i]);
             if (counter == 0) {
                 // isAce = currentRank == 12 ? j : 255;
-                lastRank = currentRank;
                 bestHand[counter] = hand[i];
                 counter++; 
             }
             else if (currentRank == lastRank - 1) {
-                lastRank = currentRank;
                 bestHand[counter] = hand[i];
                 counter++;
             }
@@ -273,12 +269,12 @@ library CardUtils {
             //     bestHand[counter] = hand[isAce];
             //     counter++;
             // }
-            else {
+            else if (currentRank != lastRank) {
                 counter = 0;
-                lastRank = currentRank;
-                bestHand[counter] = hand[0];
+                bestHand[counter] = hand[i];
                 counter++;
             }
+            lastRank = currentRank;
             if (counter == 5) {
                 return (true, bestHand);
             }
