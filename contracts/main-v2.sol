@@ -96,9 +96,9 @@ contract PokerChain {
 
     /*
         Function to create new game
-        @param : smallBlind, minBuyIn, maxBuyIn, playerHash
+        @param : smallBlind, minBuyIn, maxBuyIn, 
     */
-    function createGame(uint256 smallBlind, uint256 minBuyIn, uint256 maxBuyIn, bytes32 playerHash) public payable returns (uint256) {
+    function createGame(uint256 smallBlind, uint256 minBuyIn, uint256 maxBuyIn) public payable returns (uint256) {
         
         require(minBuyIn <= maxBuyIn, "Minimum buy in must not exceed maximum buy in");
 
@@ -114,14 +114,12 @@ contract PokerChain {
         newGame.minBuyIn = minBuyIn;
         newGame.maxBuyIn = maxBuyIn;
         newGame.currentPlayerIndex = 0;
-        // newGame.verifiedPlayerCount = 0;
-        // newGame.numPlayerInGame = 0;
         newGame.status = GameStatus.Create;
         for (uint8 i = 0; i < 52; i++) {
             newGame.deck.push(i);
         }
 
-        _joinGame(gameId, playerHash);
+        _joinGame(gameId);
         return gameId;
     }
 
@@ -129,18 +127,17 @@ contract PokerChain {
         Function to join existing game
         @param : gameId, player hash
     */
-    function joinGame(uint256 gameId, bytes32 playerHash) public payable onlyState(gameId, GameStatus.Create) validGameId(gameId) {
-        _joinGame(gameId, playerHash);
+    function joinGame(uint256 gameId, bytes32 ) public payable onlyState(gameId, GameStatus.Create) validGameId(gameId) {
+        _joinGame(gameId);
     }
 
-    function _joinGame(uint256 gameId, bytes32 playerHash) internal {
+    function _joinGame(uint256 gameId) internal {
         Game storage game = games[gameId];
         require(msg.value >= commission + game.minBuyIn && msg.value <= commission + game.maxBuyIn, "Deposit amount must not less than minBuyIn and not more than MaxBuyIn");
         require(game.players.length < MAX_PLAYERS, "Game is full");
         require(msg.sender != address(0x0) && msg.sender != address(this), "Invalid player address");
 
         game.players.push(msg.sender);
-        game.playerStates[msg.sender] = playerHash;
         game.playerChips[msg.sender] = msg.value - commission;
         game.cardMasks[msg.sender] = 0;
         game.isPlayerInGame.push(1);
