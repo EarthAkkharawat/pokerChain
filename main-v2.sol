@@ -3,7 +3,11 @@ pragma solidity ^0.8.0;
 
 import './game-logic/utils.sol';
 
+//0x8b0c5278f646fa6bd2de166a73cc5a5bcf242ceb0bab6cad60e4500f052c20aa
+//0x8b0c5278f646fa6bd2de166a73cc5a5bcf242ceb0bab6cad60e4500f052c20ab
+//0x8b0c5278f646fa6bd2de166a73cc5a5bcf242ceb0bab6cad60e4500f052c20ac
 contract PokerChain {
+    uint8 private constant MAX_PLAYERS = 3;
     struct Game {
         address owner;
         address[] players;
@@ -57,14 +61,13 @@ contract PokerChain {
 	uint8 private constant STRAIGHT_FLUSH = 8;
 	uint8 private constant ROYAL_STRAIGHT_FLUSH = 9;
 
-    enum PlayerAction { Call, Raise, Check, Fold }
+    enum PlayerAction { Call, Raise, Check, Fold, Idle }
 
     address private owner;
     uint256 private commission; // pay to our system
     uint8 private nextGameId; 
     uint8 private bigBlindPlayerId; 
     uint8 private numGames; 
-    uint8 private constant MAX_PLAYERS = 2;
     uint8 private constant TOTAL_CARDS = 52;
     
     modifier onlyOwner() {
@@ -105,13 +108,14 @@ contract PokerChain {
         newGame.owner = msg.sender;
         newGame.smallBlindAmount = smallBlind;
         newGame.bigBlindAmount = smallBlind * 2;
-        newGame.bigBlindPlayer = (bigBlindPlayerId++) % MAX_PLAYERS;
-        newGame.smallBlindPlayer = (1 + bigBlindPlayerId++) % MAX_PLAYERS;
+        bigBlindPlayerId = 0;
+        newGame.smallBlindPlayer = 0;
+        newGame.bigBlindPlayer = 1;
         newGame.minBuyIn = minBuyIn;
         newGame.maxBuyIn = maxBuyIn;
-        newGame.verifiedPlayerCount = 1;
-        newGame.isPlayerInGame.push(1);
-        newGame.numPlayerInGame = 1;
+        newGame.currentPlayerIndex = 0;
+        // newGame.verifiedPlayerCount = 0;
+        // newGame.numPlayerInGame = 0;
         newGame.status = GameStatus.Create;
         for (uint8 i = 0; i < 52; i++) {
             newGame.deck.push(i);
@@ -125,11 +129,11 @@ contract PokerChain {
         Function to join existing game
         @param : gameId, player hash
     */
-    function joinGame(uint256 gameId, bytes32 playerHash) public payable {
+    function joinGame(uint256 gameId, bytes32 playerHash) public payable onlyState(gameId, GameStatus.Create) validGameId(gameId) {
         _joinGame(gameId, playerHash);
     }
 
-    function _joinGame(uint256 gameId, bytes32 playerHash) internal onlyState(gameId, GameStatus.Create) validGameId(gameId) {
+    function _joinGame(uint256 gameId, bytes32 playerHash) internal {
         Game storage game = games[gameId];
         require(msg.value >= commission + game.minBuyIn && msg.value <= commission + game.maxBuyIn, "Deposit amount must not less than minBuyIn and not more than MaxBuyIn");
         require(game.players.length < MAX_PLAYERS, "Game is full");
@@ -140,11 +144,13 @@ contract PokerChain {
         game.playerChips[msg.sender] = msg.value - commission;
         game.cardMasks[msg.sender] = 0;
         game.isPlayerInGame.push(1);
-        game.numPlayerInGame++;
-        game.verifiedPlayerCount++;
+        game.numPlayerInGame += 1;
+        game.verifiedPlayerCount += 1;
+        game.playerBetAmounts.push(0);
+        game.playerActions.push(PlayerAction.Idle);
 
-        if (game.verifiedPlayerCount == MAX_PLAYERS) {
-            game.verifiedPlayerCount = 0;
+        if (game.players.length == MAX_PLAYERS) {
+            // game.verifiedPlayerCount = 0;
             game.status = GameStatus.AwaitingToStart;
             _transfer(owner, commission); // pay commission to us
         }
@@ -180,10 +186,10 @@ contract PokerChain {
         Function to start game and enter the preflop state
         @param : gameId, seed
     */
-    function startGame(uint8 gameId, uint256 seed) public onlyOwner onlyState(gameId, GameStatus.AwaitingToStart) validGameId(gameId) {
+    function startGame(uint8 gameId, uint256 seed) public onlyState(gameId, GameStatus.AwaitingToStart) validGameId(gameId) {
         Game storage game = games[gameId];
         // require(game.status == GameStatus.AwaitingToStart, "Game not in correct state");
-        require(game.players.length == MAX_PLAYERS, "Game not in correct state");
+        require(game.players.length == MAX_PLAYERS, "Table does not full yet");
 
         game.status = GameStatus.PreFlop;
         // deal the card
@@ -207,45 +213,104 @@ contract PokerChain {
         address smallBlindPlayer = game.players[game.smallBlindPlayer];
         require(game.playerChips[bigBlindPlayer] >= game.bigBlindAmount, "Insufficient balance");
         require(game.playerChips[smallBlindPlayer] >= game.smallBlindAmount, "Insufficient balance");
-        game.pot += game.bigBlindAmount + game.smallBlindAmount;
+        game.pot += game.bigBlindAmount * 2;
         game.playerChips[bigBlindPlayer] -= game.bigBlindAmount;
-        game.playerChips[smallBlindPlayer] -= game.smallBlindAmount;
+        game.playerChips[smallBlindPlayer] -= game.bigBlindAmount;
 
-        game.currentPlayerIndex = game.smallBlindPlayer + 1;
+        game.currentBet = game.bigBlindAmount;
+        game.currentPlayerIndex = game.bigBlindPlayer + 1;
+        game.playerBetAmounts[game.bigBlindPlayer] = game.bigBlindAmount;
+        game.playerActions[game.bigBlindPlayer] = PlayerAction.Raise;
+        game.playerBetAmounts[game.smallBlindPlayer] = game.bigBlindAmount;
+        game.playerActions[game.smallBlindPlayer] = PlayerAction.Raise;
     }
 
     /*
-        Function to betting in the Round
+        Function to Call in the Round
         @param : gameId, player action, raise amount
     */
-    function bettingRound(uint8 gameId, PlayerAction action, uint256 raiseAmount) public validGameId(gameId) {
+    function callAction(uint8 gameId) public validGameId(gameId) {
         Game storage game = games[gameId];
-        require(game.status == GameStatus.PreFlop || game.status == GameStatus.Flop || game.status == GameStatus.Turn || game.status == GameStatus.River, "Invalid state");
-        require(game.playerActions[game.currentPlayerIndex] != PlayerAction.Fold, "Player has already folded");
-        require(msg.sender == game.players[game.currentPlayerIndex], "Not your turn");
-        require(game.isPlayerInGame[game.currentPlayerIndex] != 0, "You have already been eliminated");
+        require(_isValidAction(game), "Invalid call action");
+        address player = game.players[game.currentPlayerIndex];
 
-        if (action == PlayerAction.Call) {
-            require(game.playerBetAmounts[game.currentPlayerIndex] < game.currentBet, "Raise amount must be greater than current bet");
-            address player = game.players[game.currentPlayerIndex];
-            game.pot += game.currentBet;
-            game.playerBetAmounts[game.currentPlayerIndex] += game.currentBet;
-            game.playerChips[player] -= game.currentBet;
-        } else if (action == PlayerAction.Raise) {
-            require(raiseAmount > game.currentBet, "Raise amount must be greater than current bet");
-            address player = game.players[game.currentPlayerIndex];
-            require(game.playerChips[player] >= raiseAmount, "Insufficient balance");
-            game.currentBet = raiseAmount;
-            game.pot += raiseAmount;
-            game.playerBetAmounts[game.currentPlayerIndex] += raiseAmount;
-            game.playerChips[player] -= raiseAmount;
-        } else if (action == PlayerAction.Check) {
-            require(game.playerBetAmounts[game.currentPlayerIndex] == game.currentBet, "Cannot check, must match current bet");
-        } else if (action == PlayerAction.Fold) {
-            game.playerActions[game.currentPlayerIndex] = PlayerAction.Fold;
+        game.playerActions[game.currentPlayerIndex] = PlayerAction.Call;
+        game.pot += game.currentBet;
+        game.playerChips[player] -= (game.currentBet - game.playerBetAmounts[game.currentPlayerIndex]);
+        game.playerBetAmounts[game.currentPlayerIndex] = game.currentBet;
+        _nextPlayer(game);
+        
+    }
+
+    /*
+        Function to Raise in the Round
+        @param : gameId, player action, raise amount
+    */
+    function raiseAction(uint8 gameId, uint256 raiseAmount) public validGameId(gameId) {
+        Game storage game = games[gameId];
+        require(_isValidAction(game), "Invalid raise action");
+        address player = game.players[game.currentPlayerIndex];
+
+        require(raiseAmount > game.currentBet, "Raise amount must be greater than current bet");
+        require(game.playerChips[player] >= raiseAmount, "Insufficient balance");
+
+        game.playerActions[game.currentPlayerIndex] = PlayerAction.Raise;
+        game.currentBet = raiseAmount;
+        game.pot += raiseAmount;
+        game.playerBetAmounts[game.currentPlayerIndex] = raiseAmount;
+        game.playerChips[player] -= raiseAmount;
+        _nextPlayer(game);
+    }
+
+    /*
+        Function to Check in the Round
+        @param : gameId, player action, raise amount
+    */
+    function checkAction(uint8 gameId) public validGameId(gameId) {
+        Game storage game = games[gameId];
+        require(_isValidAction(game), "Invalid check action");
+        require(game.playerBetAmounts[game.currentPlayerIndex] == game.currentBet, "Cannot check, must match current bet");
+        game.playerActions[game.currentPlayerIndex] = PlayerAction.Check;
+        _nextPlayer(game);
+    }
+
+    /*
+        Function to Fold in the Round
+        @param : gameId, player action, raise amount
+    */
+    function foldAction(uint8 gameId) public validGameId(gameId) {
+        Game storage game = games[gameId];
+        require(_isValidAction(game), "Invalid fold action");
+        game.playerActions[game.currentPlayerIndex] = PlayerAction.Fold;
+        _nextPlayer(game);
+    }
+
+    function _isValidAction(Game storage game) internal view returns (bool) {
+        return (game.status == GameStatus.PreFlop || game.status == GameStatus.Flop || game.status == GameStatus.Turn || game.status == GameStatus.River) &&
+            (game.playerActions[game.currentPlayerIndex] != PlayerAction.Fold) &&
+            (msg.sender == game.players[game.currentPlayerIndex]) &&
+            (game.isPlayerInGame[game.currentPlayerIndex] != 0);
+    }
+
+    function getIsValidAction(uint8 gameId) public view returns (
+        bool validState,
+        bool validAction,
+        bool validPlayer,
+        bool validActivePlayer
+    ) {
+        Game storage game = games[gameId];
+        return (game.status == GameStatus.PreFlop || game.status == GameStatus.Flop || game.status == GameStatus.Turn || game.status == GameStatus.River ,
+            game.playerActions[game.currentPlayerIndex] != PlayerAction.Fold,
+            msg.sender == game.players[game.currentPlayerIndex],
+            game.isPlayerInGame[game.currentPlayerIndex] != 0);
+    }
+
+    function _nextPlayer(Game storage game) internal {
+        if (game.playerActions[(game.currentPlayerIndex + 1) % MAX_PLAYERS] == PlayerAction.Fold) {
+            game.currentPlayerIndex = (game.currentPlayerIndex + 2) % MAX_PLAYERS;
+        } else{
+            game.currentPlayerIndex = (game.currentPlayerIndex + 1) % MAX_PLAYERS;
         }
-
-        game.currentPlayerIndex = (game.currentPlayerIndex + 1) % MAX_PLAYERS;
     }
 
     /*
@@ -260,6 +325,10 @@ contract PokerChain {
         Game storage game = games[gameId];
         game.status = GameStatus.Flop;
         game.currentPlayerIndex = 0;
+        game.currentBet = 0;
+        for (uint i = 0; i < MAX_PLAYERS;++i){
+            game.playerActions[i] = PlayerAction.Idle;
+        }
         return (game.communityCards[0], game.communityCards[1], game.communityCards[2]);
     }
 
@@ -276,6 +345,10 @@ contract PokerChain {
         Game storage game = games[gameId];
         game.status = GameStatus.Turn;
         game.currentPlayerIndex = 0;
+        game.currentBet = 0;
+        for (uint i = 0; i < MAX_PLAYERS;++i){
+            game.playerActions[i] = PlayerAction.Idle;
+        }
         return (game.communityCards[0], game.communityCards[1], game.communityCards[2], game.communityCards[3]);
     }
 
@@ -293,6 +366,10 @@ contract PokerChain {
         Game storage game = games[gameId];
         game.status = GameStatus.Turn;
         game.currentPlayerIndex = 0;
+        game.currentBet = 0;
+        for (uint i = 0; i < MAX_PLAYERS;++i){
+            game.playerActions[i] = PlayerAction.Idle;
+        }
         return (game.communityCards[0], game.communityCards[1], game.communityCards[2], game.communityCards[3], game.communityCards[4]);
     }
 
@@ -300,43 +377,43 @@ contract PokerChain {
         Function to reward and reset game
         @param : gameId
     */
-    function showdown(uint8 gameId) public payable onlyState(gameId, GameStatus.River) {
-        Game storage game = games[gameId];
-        uint256 maxRank = 0;
-        uint256 winner = 0;
-        for (uint i=0; i<MAX_PLAYERS; i++){
-            address player = game.players[i];
-            // TODO
-            game.ranks[i] = PokerUtils.checkCardsCombination(game.playerCards[player], game.communityCards);
-            if (game.ranks[i] > maxRank){
-                maxRank = game.ranks[i];
-                winner = i;
-            }
-        }
+    // function showdown(uint8 gameId) public payable onlyState(gameId, GameStatus.River) {
+    //     Game storage game = games[gameId];
+    //     uint256 maxRank = 0;
+    //     uint256 winner = 0;
+    //     for (uint i=0; i<MAX_PLAYERS; i++){
+    //         address player = game.players[i];
+    //         // TODO
+    //         game.ranks[i] = PokerUtils.checkCardsCombination(game.playerCards[player], game.communityCards);
+    //         if (game.ranks[i] > maxRank){
+    //             maxRank = game.ranks[i];
+    //             winner = i;
+    //         }
+    //     }
         
-        game.playerChips[game.players[winner]] += game.pot;
+    //     game.playerChips[game.players[winner]] += game.pot;
 
-        for (uint i=0; i < MAX_PLAYERS; i++){
-            if (game.playerChips[game.players[i]] == 0) {
-                game.isPlayerInGame[i] == 0;
-                game.numPlayerInGame--;
-            }
-        }
+    //     for (uint i=0; i < MAX_PLAYERS; i++){
+    //         if (game.playerChips[game.players[i]] == 0) {
+    //             game.isPlayerInGame[i] == 0;
+    //             game.numPlayerInGame--;
+    //         }
+    //     }
 
-        if (game.numPlayerInGame == 1) {
-            uint256 winner_idx = 0;
-            for (uint i = 0; i < game.isPlayerInGame.length; i++) {
-                if (game.isPlayerInGame[i] == 1) {
-                    winner_idx = int(i);
-                }
-            }
-            _transfer(game.players[winner_idx], game.playerChips[game.players[winner_idx]]);
-            _resetGame(gameId);
-        }
+    //     if (game.numPlayerInGame == 1) {
+    //         uint256 winner_idx = 0;
+    //         for (uint i = 0; i < game.isPlayerInGame.length; i++) {
+    //             if (game.isPlayerInGame[i] == 1) {
+    //                 winner_idx = int(i);
+    //             }
+    //         }
+    //         _transfer(game.players[winner_idx], game.playerChips[game.players[winner_idx]]);
+    //         _resetGame(gameId);
+    //     }
 
-        _resetRound(gameId);
+    //     _resetRound(gameId);
 
-    }
+    // }
 
     function _resetRound(uint8 gameId) internal {
         Game storage game = games[gameId];
@@ -347,47 +424,66 @@ contract PokerChain {
         game.currentBet = 0;
         game.currentPlayerIndex = 0;
         game.status = GameStatus.AwaitingToStart;
-        game.playerActions.length = 0;
-        game.playerBetAmounts.length = 0;
-        game.ranks.length = 0;
-        game.communityCards.length = 0;
+        game.playerActions = new PlayerAction[](0);
+        game.playerBetAmounts = new uint256[](0);
+        game.ranks = new uint8[](0);
+        game.communityCards = new uint8[](0);
         _resetPlayerCards(gameId);
     }
 
     function _resetGame(uint8 gameId) internal {
-        Game storage game = games[gameId];
-        delete game[gameId];
+        // Game storage game = games[gameId];
+        delete games[gameId];
         bigBlindPlayerId = 0;
         // Remove gameId from gameIds array
-        for (uint i = 0; i < game.length; i++) {
-            if (game[i] == gameId) {
-                game[i] = game[game.length - 1];
-                game.pop();
-                break;
-            }
-        }
+        // for (uint i = 0; i < game.length; i++) {
+        //     if (game[i] == gameId) {
+        //         game[i] = game[game.length - 1];
+        //         game.pop();
+        //         break;
+        //     }
+        // }
     }
 
     function _resetPlayerCards(uint8 gameId) internal {
         Game storage game = games[gameId];
         for (uint i = 0; i < game.players.length; i++) {
-            game.playerCards[game.players[i]].length = 0;
+            game.playerCards[game.players[i]] = new uint8[](0);
         }
     }
 
-    function foldHand() public {
-
+    function getGameBasicDetails(uint256 gameId) public view returns (
+        address oowner,
+        uint256 pot,
+        uint256 matchStartTime,
+        GameStatus status,
+        uint256 verifiedPlayerCount,
+        uint8[] memory
+    ) {
+        Game storage game = games[gameId];
+        return (game.owner, game.pot, game.matchStartTime, game.status, game.verifiedPlayerCount, game.isPlayerInGame);
     }
 
-    function betHand() public {
-        
+    function getHand(uint256 gameId) public view onlyState(gameId, GameStatus.PreFlop) returns (
+        uint8 firstCard,
+        uint8 secondCard
+    ) {
+        Game storage game = games[gameId];
+        return (game.playerCards[msg.sender][0], game.playerCards[msg.sender][1]);
     }
 
-    function reveal() public {
-
+    function getPlayers(uint256 gameId) public view returns (address[] memory) {
+        return games[gameId].players;
     }
 
-    function clear() public {
-
+    function getRoundDetails(uint256 gameId) public view returns (
+        uint256[] memory,
+        PlayerAction[] memory,
+        uint256 pot,
+        uint256 currentBet,
+        uint8 currentPlayerIndex
+    ) {
+        Game storage game = games[gameId];
+        return (game.playerBetAmounts, game.playerActions, game.pot, game.currentBet, game.currentPlayerIndex);
     }
 }
