@@ -1,0 +1,402 @@
+[
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_commission",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "gameId",
+                "type": "uint8"
+            }
+        ],
+        "name": "River",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "firstCard",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "secondCard",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "thirdCard",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "fourthCard",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "FifthCard",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "gameId",
+                "type": "uint8"
+            }
+        ],
+        "name": "callAction",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "gameId",
+                "type": "uint8"
+            }
+        ],
+        "name": "checkAction",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "smallBlind",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "minBuyIn",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "maxBuyIn",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "playerHash",
+                "type": "bytes32"
+            }
+        ],
+        "name": "createGame",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "gameId",
+                "type": "uint8"
+            }
+        ],
+        "name": "flop",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "firstCard",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "secondCard",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "thirdCard",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "gameId",
+                "type": "uint8"
+            }
+        ],
+        "name": "foldAction",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "gameId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getGameBasicDetails",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "oowner",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "pot",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "matchStartTime",
+                "type": "uint256"
+            },
+            {
+                "internalType": "enum PokerChain.GameStatus",
+                "name": "status",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint256",
+                "name": "verifiedPlayerCount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8[]",
+                "name": "",
+                "type": "uint8[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "gameId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getHand",
+        "outputs": [
+            {
+                "internalType": "uint8",
+                "name": "firstCard",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint8",
+                "name": "secondCard",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "gameId",
+                "type": "uint8"
+            }
+        ],
+        "name": "getIsValidAction",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "validState",
+                "type": "bool"
+            },
+            {
+                "internalType": "bool",
+                "name": "validAction",
+                "type": "bool"
+            },
+            {
+                "internalType": "bool",
+                "name": "validPlayer",
+                "type": "bool"
+            },
+            {
+                "internalType": "bool",
+                "name": "validActivePlayer",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "gameId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getPlayers",
+        "outputs": [
+            {
+                "internalType": "address[]",
+                "name": "",
+                "type": "address[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "gameId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getRoundDetails",
+        "outputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "enum PokerChain.PlayerAction[]",
+                "name": "",
+                "type": "uint8[]"
+            },
+            {
+                "internalType": "uint256",
+                "name": "pot",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "currentBet",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8",
+                "name": "currentPlayerIndex",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "gameId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "playerHash",
+                "type": "bytes32"
+            }
+        ],
+        "name": "joinGame",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "gameId",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint256",
+                "name": "raiseAmount",
+                "type": "uint256"
+            }
+        ],
+        "name": "raiseAction",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "gameId",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint256",
+                "name": "seed",
+                "type": "uint256"
+            }
+        ],
+        "name": "startGame",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "gameId",
+                "type": "uint8"
+            }
+        ],
+        "name": "turn",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "firstCard",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "secondCard",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "thirdCard",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "fourthCard",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]
