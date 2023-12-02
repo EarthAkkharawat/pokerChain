@@ -29,14 +29,14 @@ const GameTable: React.FC = () => {
 
       const options = { value: buyIn.toString() };
       const tx = await contract.createGame(
-          smallBlind,
-          minBuyIn,
-          maxBuyIn,
-          options,
+        smallBlind,
+        minBuyIn,
+        maxBuyIn,
+        options,
       );
       await tx.wait();
       setGameList((prevGameList) => [...prevGameList, prevGameList.length]);
-    //   navigate("/table/" + gameList.length);
+      //   navigate("/table/" + gameList.length);
 
     } catch (error) {
       console.error("Error creating table:", error);
