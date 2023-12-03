@@ -1,6 +1,8 @@
 # PokerChain Contract Documentation
 
-## Contract Overview
+## main.sol
+
+## Smart Contract Overview
 `PokerChain` is a Solidity smart contract designed for running a decentralized Texas Hold'em poker game on the Ethereum blockchain. It features functionalities for game creation, player actions during the game, and managing poker rounds.
 
 ## Contract Fields
@@ -278,6 +280,167 @@
 - **Functionality**: Provides detailed information about the showdown phase of the specified game.
 
 [...End of Documentation...]
+
+## utils.sol
+
+## CardUtils Library Documentation
+
+The `CardUtils` library is designed to provide utility functions for handling cards in a poker game contract. It includes methods for card manipulation, hand evaluation, and determining the winner of a poker round.
+
+## Modifiers
+
+### onlyValidHand
+Ensures that a hand does not contain any duplicate cards.
+- **Parameters**: 
+  - `hand` (`uint8[] memory`): An array representing a hand of cards.
+- **Requirements**: 
+  - Each card in the hand must be unique unless it's a placeholder value (255 for an empty or invalid card).
+
+## Functions
+
+### getRank
+Returns the rank of a card.
+- **Parameters**: 
+  - `card` (`uint8`): The card value.
+- **Returns**: 
+  - `uint8`: The rank of the card.
+
+### getSuit
+Returns the suit of a card.
+- **Parameters**: 
+  - `card` (`uint8`): The card value.
+- **Returns**: 
+  - `uint8`: The suit of the card.
+
+### sortHand
+Sorts a hand of cards in descending order.
+- **Parameters**: 
+  - `hand` (`uint8[] memory`): An unsorted array of card values.
+- **Returns**: 
+  - `uint8[] memory`: The sorted hand of cards.
+
+### combineHand
+Combines a player's hand with the community cards to form a complete hand.
+- **Parameters**: 
+  - `playerHands` (`uint8[] memory`): The player's cards.
+  - `tableCards` (`uint8[] memory`): The community cards.
+- **Returns**: 
+  - `uint8[] memory`: The combined hand of cards.
+
+### getScore
+Returns the score of a hand.
+- **Parameters**: 
+  - `hand` (`uint40`): The encoded hand value.
+- **Returns**: 
+  - `uint8`: The score of the hand.
+
+### decodeHand
+Decodes an encoded hand into its card values.
+- **Parameters**: 
+  - `hand` (`uint40`): The encoded hand value.
+- **Returns**: 
+  - `uint8[] memory`: An array of card values.
+
+### encodeHand
+Encodes a hand along with its score.
+- **Parameters**: 
+  - `hand` (`uint8[] memory`): The hand of cards.
+  - `score` (`uint8`): The score of the hand.
+- **Returns**: 
+  - `uint40`: The encoded hand value.
+
+### checkWinningHands
+Determines the winning hands among multiple players.
+- **Parameters**: 
+  - `playerHands` (`uint8[][] memory`): An array of player hands.
+  - `tableCards` (`uint8[] memory`): The community cards.
+- **Returns**: 
+  - `uint40[] memory`: An array of hand scores.
+  - `uint8[] memory`: An array of indices of the winning hands.
+
+### getHandScore
+Calculates and returns the score of a hand.
+- **Parameters**: 
+  - `hand` (`uint8[] memory`): The hand of cards to evaluate.
+- **Modifiers**: 
+  - `onlyValidHand`: Ensures the hand is valid with no duplicates.
+- **Returns**: 
+  - `uint40`: The score of the hand.
+
+### getWinner
+Identifies the winner(s) based on hand scores.
+- **Parameters**: 
+  - `handScores` (`uint40[] memory`): An array of encoded hand scores.
+- **Returns**: 
+  - `uint8[] memory`: An array of indices of the winning hands.
+
+### isEliminated
+Checks if a hand is eliminated based on placeholder values.
+- **Parameters**: 
+  - `hand` (`uint8[] memory`): The hand of cards to check.
+- **Returns**: 
+  - `bool`: True if the hand is eliminated, false otherwise.
+  - `uint8[] memory`: The hand with placeholders if eliminated.
+
+### isRoyalFlush
+Determines if a hand is a royal flush.
+- **Parameters**:
+  - `hand` (`uint8[] memory`): The hand of cards to evaluate.
+- **Returns**: 
+  - `bool`: True if the hand is a royal flush, false otherwise.
+  - `uint8[] memory`: The best hand if it's a royal flush.
+
+### isStraightFlush
+Determines if a hand is a straight flush.
+- **Parameters**:
+  - `hand` (`uint8[] memory`): The hand of cards to evaluate.
+- **Returns**: 
+  - `bool`: True if the hand is a straight flush, false otherwise.
+  - `uint8[] memory`: The best hand if it's a straight flush.
+
+### isFullHouse
+Determines if a hand is a full house.
+- **Parameters**:
+  - `hand` (`uint8[] memory`): The hand of cards to evaluate.
+- **Returns**: 
+  - `bool`: True if the hand is a full house, false otherwise.
+  - `uint8[] memory`: The best hand if it's a full house.
+
+### isFlush
+Determines if a hand is a flush.
+- **Parameters**:
+  - `hand` (`uint8[] memory`): The hand of cards to evaluate.
+- **Returns**: 
+  - `bool`: True if the hand is a flush, false otherwise.
+  - `uint8[] memory`: The best hand if it's a flush.
+
+### isStraight
+Determines if a hand is a straight.
+- **Parameters**:
+  - `hand` (`uint8[] memory`): The hand of cards to evaluate.
+- **Returns**: 
+  - `bool`: True if the hand is a straight, false otherwise.
+  - `uint8[] memory`: The best hand if it's a straight.
+
+### isNOfAKind
+Determines if a hand has n cards of the same rank.
+- **Parameters**:
+  - `hand` (`uint8[] memory`): The hand of cards to evaluate.
+  - `n` (`uint8`): The number of cards of the same rank to look for.
+- **Returns**: 
+  - `bool`: True if the hand has n cards of the same rank, false otherwise.
+  - `uint8[] memory`: The best hand if it has n cards of the same rank.
+
+### isTwoPair
+Determines if a hand is two pairs.
+- **Parameters**:
+  - `hand` (`uint8[] memory`): The hand of cards to evaluate.
+- **Returns**: 
+  - `bool`: True if the hand is two pairs, false otherwise.
+  - `uint8[] memory`: The best hand if it's two pairs.
+
+[...End of Function Documentation...]
+
 
 
 
