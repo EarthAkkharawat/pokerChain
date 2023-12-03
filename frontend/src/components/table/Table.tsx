@@ -35,8 +35,8 @@ const GameTable: React.FC = () => {
           options,
       );
       await tx.wait();
-      setGameList((prevGameList) => [...prevGameList, prevGameList.length]);
-    //   navigate("/table/" + gameList.length);
+      const gameCount = await contract.getGameCount();
+      setGameList(Array.from({ length: gameCount }, (_, i) => i));
 
     } catch (error) {
       console.error("Error creating table:", error);
