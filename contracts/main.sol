@@ -197,6 +197,7 @@ contract PokerChain {
         for (uint i = 0; i < game.players.length; i++) {
             address playerAddress = game.players[i];
             if (game.isPlayerInGame[i] == 0){
+                game.playerCards[playerAddress] = [255, 255];
                 continue;
             }
             for (uint j = 0; j < 2; j++) {
@@ -494,6 +495,10 @@ contract PokerChain {
     function _resetPlayerCards(uint8 gameId) internal {
         Game storage game = games[gameId];
         for (uint i = 0; i < game.players.length; i++) {
+            if (game.isPlayerInGame[i] == 0){
+                game.playerCards[game.players[i]] = [255, 255];
+                continue;
+            }
             game.playerCards[game.players[i]] = new uint8[](0);
         }
     }
