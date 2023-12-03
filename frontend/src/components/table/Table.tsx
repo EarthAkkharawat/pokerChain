@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";
-import { getEthereumContract } from "../../utils/contracts";
+import { getPokerGameContract } from "../../utils/contracts";
 
 const GameTable: React.FC = () => {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ const GameTable: React.FC = () => {
   const handleSubmit = async () => {
     setShowModal(false);
     try {
-      const contract = await getEthereumContract();
+      const contract = await getPokerGameContract();
       console.log(contract);
 
       const options = { value: buyIn.toString() };

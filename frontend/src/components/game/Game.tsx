@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getEthereumContract } from '../../utils/contracts';
+import { getPokerGameContract } from '../../utils/contracts';
 
 const PokerTablePage: React.FC = () => {
   const [players, setPlayers] = useState<any[]>([]);
@@ -9,9 +9,8 @@ const PokerTablePage: React.FC = () => {
   const getPlayers = async () => {
     try {
       if (window.ethereum) {
-        const contract = await getEthereumContract();
+        const contract = await getPokerGameContract();
         console.log(contract);
-
 
         const gameIdNumber = Number(gameId);
         console.log(gameIdNumber);
