@@ -3,6 +3,13 @@ pragma solidity ^0.8.0;
 
 library CardUtils {
 
+    modifier onlyValidHand(uint8[] memory hand) {
+        for (uint8 i = 1; i < hand.length; i++) {
+            require(hand[i] != hand[i-1], "Duplicate card in hand");
+        }
+        _;
+    }
+
     function getRank(uint8 card) internal pure returns (uint8) {
         return card / 4;
     }
@@ -57,21 +64,21 @@ library CardUtils {
         return encodedHand;
     }
 
-    function checkWinningHands(uint8[][] memory playerHands, uint8[] memory tableCards) internal pure returns (uint8[][] memory bestHands,uint8[] memory winnerIndices) {
+    function checkWinningHands(uint8[][] memory playerHands, uint8[] memory tableCards) internal pure returns (uint40[] memory handScores,uint8[] memory winnerIndices) {
         uint8 numberOfPlayers = uint8(playerHands.length);
-        uint40[] memory handScores = new uint40[](numberOfPlayers);
-        bestHands = new uint8[][](numberOfPlayers);
+        handScores = new uint40[](numberOfPlayers);
+        // bestHands = new uint8[][](numberOfPlayers);
 
         for (uint i = 0; i < numberOfPlayers; i++) {
             uint8[] memory hand = combineHand(playerHands[i], tableCards);
             handScores[i] = getHandScore(hand);
-            bestHands[i] = decodeHand(handScores[i]);
+            // bestHands[i] = decodeHand(handScores[i]);
         }
         winnerIndices = getWinner(handScores);
-        return (bestHands, winnerIndices);
+        return (handScores, winnerIndices);
     }
 
-    function getHandScore(uint8[] memory hand) public pure returns (uint40) {
+    function getHandScore(uint8[] memory hand) public pure onlyValidHand(hand) returns (uint40) {
         uint8[] memory bestHand;
         bool passCondition;
         (passCondition, bestHand) = isRoyalFlush(hand);     if (passCondition) { return encodeHand(bestHand, 9); }
