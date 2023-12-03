@@ -265,7 +265,7 @@ library CardUtils {
                 index++;
             }
             else if (currentRank != lastRank) {
-                bestHand[0] = hand[i];
+                bestHand[i] = hand[i];
                 index = 1;
                 counter = 1;
             }
