@@ -5,7 +5,7 @@ library CardUtils {
 
     modifier onlyValidHand(uint8[] memory hand) {
         for (uint8 i = 1; i < hand.length; i++) {
-            require(hand[i] != hand[i-1], "Duplicate card in hand");
+            require(hand[i] == 255 || hand[i] != hand[i-1], "Duplicate card in hand");
         }
         _;
     }
@@ -117,6 +117,16 @@ library CardUtils {
             }
         }
         return winnerIndices;
+    }
+
+    function isEliminated(uint8[] memory hand) public pure returns (bool, uint8[] memory bestHand) {
+        bool eliminated = false;
+        bestHand = new uint8[](5);
+        for (uint8 i = 0; i < hand.length; i++) {
+            bestHand[i] = 255;
+            if (hand[i] == 255) { eliminated = true; }
+        }
+        return (eliminated, bestHand);
     }
 
     function isRoyalFlush(uint8[] memory hand) public pure returns (bool, uint8[] memory bestHand) {
