@@ -5,31 +5,31 @@ import { getEthereumContract } from '../../utils/contracts';
 const PokerTablePage: React.FC = () => {
   const [players, setPlayers] = useState<any[]>([]);
   const { gameId } = useParams<{ gameId: string }>();
-  
+
   const getPlayers = async () => {
     try {
       if (window.ethereum) {
         const contract = await getEthereumContract();
         console.log(contract);
 
-        
+
         const gameIdNumber = Number(gameId);
         console.log(gameIdNumber);
         const playersList = await contract.getPlayers(gameIdNumber);
         console.log(playersList);
-        
+
         if (Array.isArray(playersList)) {
           setPlayers(playersList);
         } else {
-          setPlayers([]); 
+          setPlayers([]);
         }
       } else {
         console.error('Ethereum object not found');
-        setPlayers([]); 
+        setPlayers([]);
       }
     } catch (error) {
       console.error('Error fetching players:', error);
-      setPlayers([]); 
+      setPlayers([]);
     }
   };
 
@@ -41,7 +41,7 @@ const PokerTablePage: React.FC = () => {
     <div className="poker-table">
       {players.map((player, index) => (
         <div key={index} className="player">
-          Player: {player} 
+          Player: {player}
         </div>
       ))}
     </div>
