@@ -8,23 +8,23 @@ contract PokerChain {
     struct Game {
         address owner;
         address[] players;
-        mapping(address => uint256) playerChips;
+        mapping(address => uint24) playerChips;
         mapping(address => uint8[]) playerCards;
         PlayerAction[] playerActions;
         uint8[] isPlayerInGame;
         uint8[] isPlayerAllIn;
-        uint256[] playerBetAmounts;
+        uint24[] playerBetAmounts;
         uint8[] deck;
         uint8[] communityCards;
-        uint256 pot;
+        uint24 pot;
         uint8 numPlayerInGame;
-        uint256 smallBlindAmount;
-        uint256 bigBlindAmount;
+        uint24 smallBlindAmount;
+        uint24 bigBlindAmount;
         uint8 smallBlindPlayer;
         uint8 bigBlindPlayer;
-        uint256 minBuyIn;
-        uint256 maxBuyIn;
-        uint256 currentBet;
+        uint24 minBuyIn;
+        uint24 maxBuyIn;
+        uint24 currentBet;
         uint8 currentPlayerIndex;
         uint8 verifiedPlayerCount;
         uint8 gameCount;
@@ -62,8 +62,9 @@ contract PokerChain {
         AllIn
     }
 
+    mapping(uint8 => Game) private games; // nextGameId to get Size
     address private owner;
-    uint256 private commission; // pay to our system
+    uint24 private commission; // pay to our system
     uint8 private nextGameId;
     uint8 private bigBlindPlayerId;
     uint8 private numGames;
@@ -74,21 +75,20 @@ contract PokerChain {
         _;
     }
 
-    modifier onlyState(uint256 gameId, GameStatus state) {
+    modifier onlyState(uint8 gameId, GameStatus state) {
         Game storage game = games[gameId];
         require(game.status == state, "Invalid state");
         _;
     }
 
-    modifier validGameId(uint256 gameId) {
+    modifier validGameId(uint8 gameId) {
         Game storage game = games[gameId];
         require(gameId <= numGames, "gameId does not exists");
         _;
     }
 
-    mapping(uint256 => Game) private games; // nextGameId to get Size
 
-    constructor(uint256 _commission) {
+    constructor(uint24 _commission) {
         owner = msg.sender;
         commission = _commission;
     }
@@ -98,10 +98,10 @@ contract PokerChain {
         @param : smallBlind, minBuyIn, maxBuyIn
     */
     function createGame(
-        uint256 smallBlind,
-        uint256 minBuyIn,
-        uint256 maxBuyIn
-    ) public payable returns (uint256) {
+        uint24 smallBlind,
+        uint24 minBuyIn,
+        uint24 maxBuyIn
+    ) public payable returns (uint8) {
         require(
             minBuyIn <= maxBuyIn,
             "Minimum buy in must not exceed maximum buy in"
@@ -119,14 +119,12 @@ contract PokerChain {
         newGame.minBuyIn = minBuyIn;
         newGame.maxBuyIn = maxBuyIn;
         newGame.currentPlayerIndex = 0;
-        // newGame.verifiedPlayerCount = 0;
-        // newGame.numPlayerInGame = 0;
+
         newGame.status = GameStatus.Create;
         for (uint8 i = 0; i < 52; i++) {
             newGame.deck.push(i);
         }
 
-        // _joinGame(gameId);
         return gameId;
     }
 
@@ -135,12 +133,12 @@ contract PokerChain {
         @param : gameId, player hash
     */
     function joinGame(
-        uint256 gameId
+        uint8 gameId
     ) public payable onlyState(gameId, GameStatus.Create) validGameId(gameId) {
         _joinGame(gameId);
     }
 
-    function _joinGame(uint256 gameId) internal {
+    function _joinGame(uint8 gameId) internal {
         Game storage game = games[gameId];
         require(
             msg.value >= commission + game.minBuyIn &&
@@ -154,7 +152,8 @@ contract PokerChain {
         );
 
         game.players.push(msg.sender);
-        game.playerChips[msg.sender] = msg.value - commission;
+        uint256 amountAfterCommission = msg.value - commission;
+        game.playerChips[msg.sender] = uint24(amountAfterCommission);
         game.isPlayerInGame.push(1);
         game.numPlayerInGame += 1;
         game.verifiedPlayerCount += 1;
@@ -172,7 +171,7 @@ contract PokerChain {
         Function to transfer assets
         @param : receiver address, amount
     */
-    function _transfer(address to, uint256 amount) internal {
+    function _transfer(address to, uint24 amount) internal {
         (bool success, ) = to.call{value: amount}(new bytes(0));
         if (!success) {
             revert("Transfer error");
@@ -184,8 +183,8 @@ contract PokerChain {
         @param : gameId, seed
     */
     function drawCard(
-        uint256 gameId,
-        uint256 seed
+        uint8 gameId,
+        uint24 seed
     ) internal validGameId(gameId) returns (uint8) {
         Game storage game = games[gameId];
         require(game.deck.length > 0, "No more cards in the deck");
@@ -209,7 +208,7 @@ contract PokerChain {
     */
     function startGame(
         uint8 gameId,
-        uint256 seed
+        uint24 seed
     ) public onlyState(gameId, GameStatus.AwaitingToStart) validGameId(gameId) {
         Game storage game = games[gameId];
         // require(game.status == GameStatus.AwaitingToStart, "Game not in correct state");
@@ -256,7 +255,7 @@ contract PokerChain {
         game.playerActions[game.smallBlindPlayer] = PlayerAction.Raise;
     }
 
-    function _min(uint256 a, uint256 b) internal pure returns (uint256) {
+    function _min(uint24 a, uint24 b) internal pure returns (uint24) {
         return a <= b ? a : b;
     }
 
@@ -274,7 +273,7 @@ contract PokerChain {
         address player = game.players[game.currentPlayerIndex];
 
         game.playerActions[game.currentPlayerIndex] = PlayerAction.Call;
-        uint256 callAmount = _min(
+        uint24 callAmount = _min(
             game.currentBet - game.playerBetAmounts[game.currentPlayerIndex],
             game.playerChips[player]
         );
@@ -297,7 +296,7 @@ contract PokerChain {
     */
     function raiseAction(
         uint8 gameId,
-        uint256 raiseAmount
+        uint24 raiseAmount
     ) public validGameId(gameId) {
         Game storage game = games[gameId];
         require(_isValidAction(game), "Invalid raise action");
@@ -422,7 +421,7 @@ contract PokerChain {
     )
         public
         onlyState(gameId, GameStatus.PreFlop)
-        returns (uint256 firstCard, uint256 secondCard, uint256 thirdCard)
+        returns (uint8 firstCard, uint8 secondCard, uint8 thirdCard)
     {
         Game storage game = games[gameId];
         game.status = GameStatus.Flop;
@@ -451,10 +450,10 @@ contract PokerChain {
         public
         onlyState(gameId, GameStatus.Flop)
         returns (
-            uint256 firstCard,
-            uint256 secondCard,
-            uint256 thirdCard,
-            uint256 fourthCard
+            uint8 firstCard,
+            uint8 secondCard,
+            uint8 thirdCard,
+            uint8 fourthCard
         )
     {
         Game storage game = games[gameId];
@@ -485,11 +484,11 @@ contract PokerChain {
         public
         onlyState(gameId, GameStatus.Turn)
         returns (
-            uint256 firstCard,
-            uint256 secondCard,
-            uint256 thirdCard,
-            uint256 fourthCard,
-            uint256 FifthCard
+            uint8 firstCard,
+            uint8 secondCard,
+            uint8 thirdCard,
+            uint8 fourthCard,
+            uint8 FifthCard
         )
     {
         Game storage game = games[gameId];
@@ -524,14 +523,14 @@ contract PokerChain {
     {
         Game storage game = games[gameId];
         uint8[][] memory playerHands = new uint8[][](game.numPlayerInGame);
-        for (uint256 i = 0; i < game.players.length; i++) {
+        for (uint i = 0; i < game.players.length; i++) {
             playerHands[i] = game.playerCards[game.players[i]];
         }
         (uint40[] memory bestHands, uint8[] memory winnerIndices) = CardUtils
             .checkWinningHands(playerHands, game.communityCards);
         uint256 rewards = game.pot / winnerIndices.length;
         for (uint i = 0; i < winnerIndices.length; i++) {
-            game.playerChips[game.players[i]] += rewards;
+            game.playerChips[game.players[i]] += uint24(rewards);
         }
 
         uint8[][] memory bestHandsDecoded = new uint8[][](bestHands.length);
@@ -591,7 +590,7 @@ contract PokerChain {
         game.currentPlayerIndex = 0;
         game.status = GameStatus.AwaitingToStart;
         game.playerActions = new PlayerAction[](0);
-        game.playerBetAmounts = new uint256[](0);
+        game.playerBetAmounts = new uint24[](0);
         game.communityCards = new uint8[](0);
         _resetPlayerCards(gameId);
     }
@@ -622,15 +621,15 @@ contract PokerChain {
     }
 
     function getGameBasicDetails(
-        uint256 gameId
+        uint8 gameId
     )
         public
         view
         returns (
             address oowner,
-            uint256 pot,
+            uint24 pot,
             GameStatus status,
-            uint256 verifiedPlayerCount,
+            uint8 verifiedPlayerCount,
             uint8[] memory
         )
     {
@@ -645,12 +644,8 @@ contract PokerChain {
     }
 
     function getHand(
-        uint256 gameId
-    )
-        public
-        view
-        returns (uint8 firstCard, uint8 secondCard)
-    {
+        uint8 gameId
+    ) public view returns (uint8 firstCard, uint8 secondCard) {
         Game storage game = games[gameId];
         return (
             game.playerCards[msg.sender][0],
@@ -658,7 +653,7 @@ contract PokerChain {
         );
     }
 
-    function getPlayers(uint256 gameId) public view returns (address[] memory) {
+    function getPlayers(uint8 gameId) public view returns (address[] memory) {
         return games[gameId].players;
     }
 
@@ -667,15 +662,15 @@ contract PokerChain {
     }
 
     function getRoundDetails(
-        uint256 gameId
+        uint8 gameId
     )
         public
         view
         returns (
-            uint256[] memory,
+            uint24[] memory,
             PlayerAction[] memory,
-            uint256 pot,
-            uint256 currentBet,
+            uint24 pot,
+            uint24 currentBet,
             uint8 currentPlayerIndex,
             uint8[] memory
         )
@@ -690,5 +685,4 @@ contract PokerChain {
             game.isPlayerAllIn
         );
     }
-
 }
