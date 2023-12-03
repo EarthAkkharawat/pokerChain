@@ -1,0 +1,6 @@
+artifacts
+.DS_Store
+.deps
+
+/frontend
+*/node_modules

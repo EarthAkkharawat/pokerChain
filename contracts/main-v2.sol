@@ -17,6 +17,7 @@ contract PokerChain {
         mapping(address => uint8) cardMasks;
         PlayerAction[] playerActions;
         uint8[] isPlayerInGame;
+        uint8[] isPlayerAllIn;
         uint256[] playerBetAmounts;
         uint256[] ranks;
         uint8[] deck;
@@ -61,7 +62,7 @@ contract PokerChain {
 	uint8 private constant STRAIGHT_FLUSH = 8;
 	uint8 private constant ROYAL_STRAIGHT_FLUSH = 9;
 
-    enum PlayerAction { Call, Raise, Check, Fold, Idle }
+    enum PlayerAction { Call, Raise, Check, Fold, Idle, AllIn }
 
     address private owner;
     uint256 private commission; // pay to our system
@@ -225,6 +226,10 @@ contract PokerChain {
         game.playerActions[game.smallBlindPlayer] = PlayerAction.Raise;
     }
 
+    function _min(uint256 a, uint256 b) internal returns (uint256) {
+        return a <= b ? a : b;
+    }
+
     /*
         Function to Call in the Round
         @param : gameId, player action, raise amount
@@ -232,12 +237,21 @@ contract PokerChain {
     function callAction(uint8 gameId) public validGameId(gameId) {
         Game storage game = games[gameId];
         require(_isValidAction(game), "Invalid call action");
+        if (game.isPlayerAllIn[game.currentPlayerIndex] == 1){
+            _nextPlayer(game);
+            return;
+        }
         address player = game.players[game.currentPlayerIndex];
 
         game.playerActions[game.currentPlayerIndex] = PlayerAction.Call;
-        game.pot += game.currentBet;
-        game.playerChips[player] -= (game.currentBet - game.playerBetAmounts[game.currentPlayerIndex]);
-        game.playerBetAmounts[game.currentPlayerIndex] = game.currentBet;
+        uint256 callAmount = _min(game.currentBet - game.playerBetAmounts[game.currentPlayerIndex], game.playerChips[player]);
+        game.pot += callAmount ;
+        game.playerChips[player] -= callAmount;
+        game.playerBetAmounts[game.currentPlayerIndex] = _min(game.currentBet, game.playerBetAmounts[game.currentPlayerIndex] + callAmount);
+        if (game.playerChips[player] == 0){
+            game.isPlayerAllIn[game.currentPlayerIndex] = 1;
+            game.playerActions[game.currentPlayerIndex] = PlayerAction.AllIn;
+        }
         _nextPlayer(game);
         
     }
@@ -249,6 +263,10 @@ contract PokerChain {
     function raiseAction(uint8 gameId, uint256 raiseAmount) public validGameId(gameId) {
         Game storage game = games[gameId];
         require(_isValidAction(game), "Invalid raise action");
+        if (game.isPlayerAllIn[game.currentPlayerIndex] == 1){
+            _nextPlayer(game);
+            return;
+        }
         address player = game.players[game.currentPlayerIndex];
 
         require(raiseAmount > game.currentBet, "Raise amount must be greater than current bet");
@@ -259,6 +277,10 @@ contract PokerChain {
         game.pot += raiseAmount;
         game.playerBetAmounts[game.currentPlayerIndex] = raiseAmount;
         game.playerChips[player] -= raiseAmount;
+        if (game.playerChips[player] == 0){
+            game.isPlayerAllIn[game.currentPlayerIndex] = 1;
+            game.playerActions[game.currentPlayerIndex] = PlayerAction.AllIn;
+        }
         _nextPlayer(game);
     }
 
@@ -269,6 +291,10 @@ contract PokerChain {
     function checkAction(uint8 gameId) public validGameId(gameId) {
         Game storage game = games[gameId];
         require(_isValidAction(game), "Invalid check action");
+        if (game.isPlayerAllIn[game.currentPlayerIndex] == 1){
+            _nextPlayer(game);
+            return;
+        }
         require(game.playerBetAmounts[game.currentPlayerIndex] == game.currentBet, "Cannot check, must match current bet");
         game.playerActions[game.currentPlayerIndex] = PlayerAction.Check;
         _nextPlayer(game);
@@ -281,6 +307,10 @@ contract PokerChain {
     function foldAction(uint8 gameId) public validGameId(gameId) {
         Game storage game = games[gameId];
         require(_isValidAction(game), "Invalid fold action");
+        if (game.isPlayerAllIn[game.currentPlayerIndex] == 1){
+            _nextPlayer(game);
+            return;
+        }
         game.playerActions[game.currentPlayerIndex] = PlayerAction.Fold;
         _nextPlayer(game);
     }
@@ -374,47 +404,60 @@ contract PokerChain {
     }
 
     /*
-        Function to reward and reset game
+        Function to reward
         @param : gameId
     */
-    // function showdown(uint8 gameId) public payable onlyState(gameId, GameStatus.River) {
-    //     Game storage game = games[gameId];
-    //     uint256 maxRank = 0;
-    //     uint256 winner = 0;
-    //     for (uint i=0; i<MAX_PLAYERS; i++){
-    //         address player = game.players[i];
-    //         // TODO
-    //         game.ranks[i] = PokerUtils.checkCardsCombination(game.playerCards[player], game.communityCards);
-    //         if (game.ranks[i] > maxRank){
-    //             maxRank = game.ranks[i];
-    //             winner = i;
-    //         }
-    //     }
+    function showdown(uint8 gameId) public view onlyState(gameId, GameStatus.River) returns(uint8[][] memory, uint8[] memory, uint8[] memory) {
+        Game storage game = games[gameId];
         
-    //     game.playerChips[game.players[winner]] += game.pot;
+        (uint40[] bestHands, uint8[] winnerIndices) = PokerUtils.checkWinningHands(game.playerCards, game.communityCards);
+        uint256 rewards = game.pot / winnerIndices.length;
+        for (uint i=0; i<winnerIndices.length; i++) {
+            game.playerChips[game.players[i]] += rewards;
+        }
 
-    //     for (uint i=0; i < MAX_PLAYERS; i++){
-    //         if (game.playerChips[game.players[i]] == 0) {
-    //             game.isPlayerInGame[i] == 0;
-    //             game.numPlayerInGame--;
-    //         }
-    //     }
+        uint8[][] bestHandsDecoded = new uint8[][](bestHands.length);
+        uint8[] bestHandsCombination = new uint8[](bestHands.length);
+        for (uint i=0; i<bestHands.length; i++) {
+            bestHandsDecoded[i] = PokerUtils.decodeHand(bestHands[i]);
+            bestHandsCombination[i] = PokerUtils.getScore(bestHands[i]);
+        }
+        game.status = GameStatus.Finish;
+        
+        return (bestHandsDecoded, bestHandsCombination, winnerIndices);
+    }
 
-    //     if (game.numPlayerInGame == 1) {
-    //         uint256 winner_idx = 0;
-    //         for (uint i = 0; i < game.isPlayerInGame.length; i++) {
-    //             if (game.isPlayerInGame[i] == 1) {
-    //                 winner_idx = int(i);
-    //             }
-    //         }
-    //         _transfer(game.players[winner_idx], game.playerChips[game.players[winner_idx]]);
-    //         _resetGame(gameId);
-    //     }
+    /*
+        Function to reset game
+        @param : gameId
+    */
+    function clear(uint8 gameId) public payable onlyState(gameId, GameStatus.Finish) {
+        Game storage game = games[gameId];
+        for (uint i=0; i < MAX_PLAYERS; i++) {
+            if (game.playerChips[game.players[i]] == 0) {
+                game.isPlayerInGame[i] == 0;
+                game.numPlayerInGame--;
+            }
+        }
 
-    //     _resetRound(gameId);
+        if (game.numPlayerInGame == 1) {
+            uint256 winner_idx = 0;
+            for (uint i = 0; i < game.isPlayerInGame.length; i++) {
+                if (game.isPlayerInGame[i] == 1) {
+                    winner_idx = int(i);
+                }
+            }
+            _transfer(game.players[winner_idx], game.playerChips[game.players[winner_idx]]);
+            _resetGame(gameId);
+            return;
+        }
+        _resetRound(gameId);
+    }
 
-    // }
-
+    /*
+        Function to reset round
+        @param : gameId
+    */
     function _resetRound(uint8 gameId) internal {
         Game storage game = games[gameId];
         bigBlindPlayerId = 0;
@@ -475,8 +518,23 @@ contract PokerChain {
     function getPlayers(uint256 gameId) public view returns (address[] memory) {
         return games[gameId].players;
     }
+    
+    function getNumGames() public view returns (uint8 numGames) {
+        return games.length;
+    }
 
     function getRoundDetails(uint256 gameId) public view returns (
+        uint256[] memory,
+        PlayerAction[] memory,
+        uint256 pot,
+        uint256 currentBet,
+        uint8 currentPlayerIndex
+    ) {
+        Game storage game = games[gameId];
+        return (game.playerBetAmounts, game.playerActions, game.pot, game.currentBet, game.currentPlayerIndex);
+    }
+
+    function getShowdown(uint256 gameId) public view returns (
         uint256[] memory,
         PlayerAction[] memory,
         uint256 pot,
