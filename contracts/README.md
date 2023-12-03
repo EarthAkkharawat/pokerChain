@@ -272,13 +272,6 @@
 - **Returns**: Tuple containing arrays of player bet amounts and actions, the current pot, current bet, and the index of the current player.
 - **Functionality**: Provides detailed information about the current round in the specified game.
 
-### getShowdown
-- **Modifiers**: N/A
-- **Parameters**:
-  - `gameId` (`uint256`): The ID of the game.
-- **Returns**: Same as `getRoundDetails`.
-- **Functionality**: Provides detailed information about the showdown phase of the specified game.
-
 [...End of Documentation...]
 
 ## utils.sol

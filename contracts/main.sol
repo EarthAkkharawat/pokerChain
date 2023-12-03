@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "./utils.sol";
 
 contract PokerChain {
-    uint8 private constant MAX_PLAYERS = 4;
+    uint8 private constant MAX_PLAYERS = 3;
     struct Game {
         address owner;
         address[] players;
@@ -160,6 +160,7 @@ contract PokerChain {
         game.verifiedPlayerCount += 1;
         game.playerBetAmounts.push(0);
         game.playerActions.push(PlayerAction.Idle);
+        game.isPlayerAllIn.push(0);
 
         if (game.players.length == MAX_PLAYERS) {
             game.status = GameStatus.AwaitingToStart;
@@ -430,6 +431,9 @@ contract PokerChain {
         for (uint i = 0; i < MAX_PLAYERS; ++i) {
             game.playerActions[i] = PlayerAction.Idle;
         }
+        for (uint i = 0; i < MAX_PLAYERS; ++i) {
+            game.playerBetAmounts[i] = 0;
+        }
         return (
             game.communityCards[0],
             game.communityCards[1],
@@ -460,6 +464,9 @@ contract PokerChain {
         for (uint i = 0; i < MAX_PLAYERS; ++i) {
             game.playerActions[i] = PlayerAction.Idle;
         }
+        for (uint i = 0; i < MAX_PLAYERS; ++i) {
+            game.playerBetAmounts[i] = 0;
+        }
         return (
             game.communityCards[0],
             game.communityCards[1],
@@ -486,11 +493,14 @@ contract PokerChain {
         )
     {
         Game storage game = games[gameId];
-        game.status = GameStatus.Turn;
+        game.status = GameStatus.River;
         game.currentPlayerIndex = 0;
         game.currentBet = 0;
         for (uint i = 0; i < MAX_PLAYERS; ++i) {
             game.playerActions[i] = PlayerAction.Idle;
+        }
+        for (uint i = 0; i < MAX_PLAYERS; ++i) {
+            game.playerBetAmounts[i] = 0;
         }
         return (
             game.communityCards[0],
@@ -639,7 +649,6 @@ contract PokerChain {
     )
         public
         view
-        onlyState(gameId, GameStatus.PreFlop)
         returns (uint8 firstCard, uint8 secondCard)
     {
         Game storage game = games[gameId];
@@ -667,7 +676,8 @@ contract PokerChain {
             PlayerAction[] memory,
             uint256 pot,
             uint256 currentBet,
-            uint8 currentPlayerIndex
+            uint8 currentPlayerIndex,
+            uint8[] memory
         )
     {
         Game storage game = games[gameId];
@@ -676,30 +686,9 @@ contract PokerChain {
             game.playerActions,
             game.pot,
             game.currentBet,
-            game.currentPlayerIndex
+            game.currentPlayerIndex,
+            game.isPlayerAllIn
         );
     }
 
-    function getShowdown(
-        uint256 gameId
-    )
-        public
-        view
-        returns (
-            uint256[] memory,
-            PlayerAction[] memory,
-            uint256 pot,
-            uint256 currentBet,
-            uint8 currentPlayerIndex
-        )
-    {
-        Game storage game = games[gameId];
-        return (
-            game.playerBetAmounts,
-            game.playerActions,
-            game.pot,
-            game.currentBet,
-            game.currentPlayerIndex
-        );
-    }
 }
