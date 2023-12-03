@@ -81,17 +81,18 @@ library CardUtils {
     function getHandScore(uint8[] memory hand) public pure onlyValidHand(hand) returns (uint40) {
         uint8[] memory bestHand;
         bool passCondition;
-        (passCondition, bestHand) = isRoyalFlush(hand);     if (passCondition) { return encodeHand(bestHand, 9); }
-        (passCondition, bestHand) = isStraightFlush(hand);  if (passCondition) { return encodeHand(bestHand, 8); }
-        (passCondition, bestHand) = isNOfAKind(hand, 4);    if (passCondition) { return encodeHand(bestHand, 7); }
-        (passCondition, bestHand) = isFullHouse(hand);      if (passCondition) { return encodeHand(bestHand, 6); }
-        (passCondition, bestHand) = isFlush(hand);          if (passCondition) { return encodeHand(bestHand, 5); }
-        (passCondition, bestHand) = isStraight(hand);       if (passCondition) { return encodeHand(bestHand, 4); }
-        (passCondition, bestHand) = isNOfAKind(hand, 3);    if (passCondition) { return encodeHand(bestHand, 3); }
-        (passCondition, bestHand) = isTwoPair(hand);        if (passCondition) { return encodeHand(bestHand, 2); }
-        (passCondition, bestHand) = isNOfAKind(hand, 2);    if (passCondition) { return encodeHand(bestHand, 1); }
+        (passCondition, bestHand) = isEliminated(hand);     if (passCondition) { return encodeHand(bestHand, 0); }
+        (passCondition, bestHand) = isRoyalFlush(hand);     if (passCondition) { return encodeHand(bestHand, 10); }
+        (passCondition, bestHand) = isStraightFlush(hand);  if (passCondition) { return encodeHand(bestHand, 9); }
+        (passCondition, bestHand) = isNOfAKind(hand, 4);    if (passCondition) { return encodeHand(bestHand, 8); }
+        (passCondition, bestHand) = isFullHouse(hand);      if (passCondition) { return encodeHand(bestHand, 7); }
+        (passCondition, bestHand) = isFlush(hand);          if (passCondition) { return encodeHand(bestHand, 6); }
+        (passCondition, bestHand) = isStraight(hand);       if (passCondition) { return encodeHand(bestHand, 5); }
+        (passCondition, bestHand) = isNOfAKind(hand, 3);    if (passCondition) { return encodeHand(bestHand, 4); }
+        (passCondition, bestHand) = isTwoPair(hand);        if (passCondition) { return encodeHand(bestHand, 3); }
+        (passCondition, bestHand) = isNOfAKind(hand, 2);    if (passCondition) { return encodeHand(bestHand, 2); }
         (, bestHand) = isNOfAKind(hand, 1);
-        return encodeHand(bestHand, 0);
+        return encodeHand(bestHand, 1);
     }
 
     function getWinner(uint40[] memory handScores) internal pure returns (uint8[] memory winnerIndices) {
