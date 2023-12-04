@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 interface LoginProps {
     setIsAuthenticated: (isAuthenticated: boolean) => void;
 }
-var accountAddr: string;
 const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
     const [account, setAccount] = useState('');
     const navigate = useNavigate();
@@ -18,7 +17,8 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
 
                 const signer = await provider.getSigner();
                 const accountAddress = await signer.getAddress();
-                accountAddr = accountAddress;
+                // set accountAddr to Storage
+                localStorage.setItem('accountAddr', accountAddress);
 
                 setAccount(accountAddress);
                 setIsAuthenticated(true);
@@ -41,4 +41,3 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
 };
 
 export default Login;
-export { accountAddr };
