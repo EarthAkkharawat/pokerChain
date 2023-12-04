@@ -28,27 +28,40 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
+				"name": "gameId",
+				"type": "uint8"
+			}
+		],
+		"name": "clear",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint24",
 				"name": "smallBlind",
-				"type": "uint256"
+				"type": "uint24"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint24",
 				"name": "minBuyIn",
-				"type": "uint256"
+				"type": "uint24"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint24",
 				"name": "maxBuyIn",
-				"type": "uint256"
+				"type": "uint24"
 			}
 		],
 		"name": "createGame",
 		"outputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "",
-				"type": "uint256"
+				"type": "uint8"
 			}
 		],
 		"stateMutability": "payable",
@@ -65,19 +78,19 @@
 		"name": "flop",
 		"outputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "firstCard",
-				"type": "uint256"
+				"type": "uint8"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "secondCard",
-				"type": "uint256"
+				"type": "uint8"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "thirdCard",
-				"type": "uint256"
+				"type": "uint8"
 			}
 		],
 		"stateMutability": "nonpayable",
@@ -99,14 +112,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "gameId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bytes32",
-				"name": "",
-				"type": "bytes32"
+				"type": "uint8"
 			}
 		],
 		"name": "joinGame",
@@ -122,9 +130,9 @@
 				"type": "uint8"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint24",
 				"name": "raiseAmount",
-				"type": "uint256"
+				"type": "uint24"
 			}
 		],
 		"name": "raiseAction",
@@ -143,29 +151,58 @@
 		"name": "River",
 		"outputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "firstCard",
-				"type": "uint256"
+				"type": "uint8"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "secondCard",
-				"type": "uint256"
+				"type": "uint8"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "thirdCard",
-				"type": "uint256"
+				"type": "uint8"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "fourthCard",
-				"type": "uint256"
+				"type": "uint8"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "FifthCard",
-				"type": "uint256"
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint8",
+				"name": "gameId",
+				"type": "uint8"
+			}
+		],
+		"name": "showdown",
+		"outputs": [
+			{
+				"internalType": "uint8[][]",
+				"name": "",
+				"type": "uint8[][]"
+			},
+			{
+				"internalType": "uint8[]",
+				"name": "",
+				"type": "uint8[]"
+			},
+			{
+				"internalType": "uint8[]",
+				"name": "",
+				"type": "uint8[]"
 			}
 		],
 		"stateMutability": "nonpayable",
@@ -179,9 +216,9 @@
 				"type": "uint8"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint24",
 				"name": "seed",
-				"type": "uint256"
+				"type": "uint24"
 			}
 		],
 		"name": "startGame",
@@ -200,24 +237,24 @@
 		"name": "turn",
 		"outputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "firstCard",
-				"type": "uint256"
+				"type": "uint8"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "secondCard",
-				"type": "uint256"
+				"type": "uint8"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "thirdCard",
-				"type": "uint256"
+				"type": "uint8"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "fourthCard",
-				"type": "uint256"
+				"type": "uint8"
 			}
 		],
 		"stateMutability": "nonpayable",
@@ -226,9 +263,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "uint24",
 				"name": "_commission",
-				"type": "uint256"
+				"type": "uint24"
 			}
 		],
 		"stateMutability": "nonpayable",
@@ -237,37 +274,32 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "gameId",
-				"type": "uint256"
+				"type": "uint8"
 			}
 		],
-		"name": "getGameBasicDetails",
+		"name": "getCardsDetail",
 		"outputs": [
 			{
-				"internalType": "address",
-				"name": "oowner",
-				"type": "address"
+				"internalType": "uint8[][]",
+				"name": "",
+				"type": "uint8[][]"
 			},
 			{
-				"internalType": "uint256",
-				"name": "pot",
-				"type": "uint256"
+				"internalType": "uint8[]",
+				"name": "",
+				"type": "uint8[]"
 			},
 			{
-				"internalType": "uint256",
-				"name": "matchStartTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "enum PokerChain.GameStatus",
-				"name": "status",
+				"internalType": "uint8",
+				"name": "deckLength",
 				"type": "uint8"
 			},
 			{
-				"internalType": "uint256",
-				"name": "verifiedPlayerCount",
-				"type": "uint256"
+				"internalType": "uint40[]",
+				"name": "",
+				"type": "uint40[]"
 			},
 			{
 				"internalType": "uint8[]",
@@ -281,21 +313,46 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "gameId",
-				"type": "uint256"
+				"type": "uint8"
 			}
 		],
-		"name": "getHand",
+		"name": "getGameBasicDetails",
 		"outputs": [
 			{
-				"internalType": "uint8",
-				"name": "firstCard",
+				"internalType": "address",
+				"name": "oowner",
+				"type": "address"
+			},
+			{
+				"internalType": "uint24",
+				"name": "pot",
+				"type": "uint24"
+			},
+			{
+				"internalType": "enum PokerChain.GameStatus",
+				"name": "status",
 				"type": "uint8"
 			},
 			{
 				"internalType": "uint8",
-				"name": "secondCard",
+				"name": "verifiedPlayerCount",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8[]",
+				"name": "",
+				"type": "uint8[]"
+			},
+			{
+				"internalType": "uint8",
+				"name": "bigBlindPlayer",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "smallBlindPlayer",
 				"type": "uint8"
 			}
 		],
@@ -331,6 +388,11 @@
 				"internalType": "bool",
 				"name": "validActivePlayer",
 				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "validTakeTurn",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -339,9 +401,65 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "gameId",
-				"type": "uint256"
+				"type": "uint8"
+			}
+		],
+		"name": "getMyBalance",
+		"outputs": [
+			{
+				"internalType": "uint24",
+				"name": "",
+				"type": "uint24"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint8",
+				"name": "gameId",
+				"type": "uint8"
+			}
+		],
+		"name": "getMyHoleCards",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "firstCard",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "secondCard",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getNumGames",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint8",
+				"name": "gameId",
+				"type": "uint8"
 			}
 		],
 		"name": "getPlayers",
@@ -358,17 +476,17 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "uint8",
 				"name": "gameId",
-				"type": "uint256"
+				"type": "uint8"
 			}
 		],
 		"name": "getRoundDetails",
 		"outputs": [
 			{
-				"internalType": "uint256[]",
+				"internalType": "uint24[]",
 				"name": "",
-				"type": "uint256[]"
+				"type": "uint24[]"
 			},
 			{
 				"internalType": "enum PokerChain.PlayerAction[]",
@@ -376,19 +494,34 @@
 				"type": "uint8[]"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint24",
 				"name": "pot",
-				"type": "uint256"
+				"type": "uint24"
 			},
 			{
-				"internalType": "uint256",
+				"internalType": "uint24",
 				"name": "currentBet",
-				"type": "uint256"
+				"type": "uint24"
 			},
 			{
 				"internalType": "uint8",
 				"name": "currentPlayerIndex",
 				"type": "uint8"
+			},
+			{
+				"internalType": "uint8[]",
+				"name": "",
+				"type": "uint8[]"
+			},
+			{
+				"internalType": "uint8[]",
+				"name": "",
+				"type": "uint8[]"
+			},
+			{
+				"internalType": "uint8[]",
+				"name": "",
+				"type": "uint8[]"
 			}
 		],
 		"stateMutability": "view",
