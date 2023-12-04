@@ -572,7 +572,7 @@ contract PokerChain {
         }
         (uint40[] memory bestHands, uint8[] memory winnerIndices) = CardUtils
             .checkWinningHands(playerHands, game.communityCards);
-        uint24 rewards = game.pot / winnerIndices.length;
+        uint256 rewards = game.pot / winnerIndices.length;
         for (uint i = 0; i < winnerIndices.length; i++) {
             game.playerChips[game.players[winnerIndices[i]]] += uint24(rewards);
         }
