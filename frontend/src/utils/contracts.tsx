@@ -4,7 +4,7 @@ import pokerGameABI from './pokerContractABI.json';
 import nftABI from './nftContractABI.json';
 
 const contractAddress = '0x30cA403F6626281ef9Ff6d450773835Da11d7fe5';
-const nftContractAddress = '0x4472d0910B2cA1dD0119DBffC80f5A286b2F0d00';
+const nftContractAddress = '0xfe5272414a5d6289d5e505fcf2dcd8a1f47b13ab';
 
 export const getPokerGameContract = async () => {
   const provider = new ethers.BrowserProvider(window.ethereum);
