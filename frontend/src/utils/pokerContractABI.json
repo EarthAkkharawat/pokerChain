@@ -2,56 +2,6 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint24",
-				"name": "_commission",
-				"type": "uint24"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint8",
-				"name": "gameId",
-				"type": "uint8"
-			}
-		],
-		"name": "River",
-		"outputs": [
-			{
-				"internalType": "uint8",
-				"name": "firstCard",
-				"type": "uint8"
-			},
-			{
-				"internalType": "uint8",
-				"name": "secondCard",
-				"type": "uint8"
-			},
-			{
-				"internalType": "uint8",
-				"name": "thirdCard",
-				"type": "uint8"
-			},
-			{
-				"internalType": "uint8",
-				"name": "fourthCard",
-				"type": "uint8"
-			},
-			{
-				"internalType": "uint8",
-				"name": "FifthCard",
-				"type": "uint8"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
 				"internalType": "uint8",
 				"name": "gameId",
 				"type": "uint8"
@@ -167,6 +117,168 @@
 				"type": "uint8"
 			}
 		],
+		"name": "joinGame",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint8",
+				"name": "gameId",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint24",
+				"name": "raiseAmount",
+				"type": "uint24"
+			}
+		],
+		"name": "raiseAction",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint8",
+				"name": "gameId",
+				"type": "uint8"
+			}
+		],
+		"name": "River",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "firstCard",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "secondCard",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "thirdCard",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "fourthCard",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "FifthCard",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint8",
+				"name": "gameId",
+				"type": "uint8"
+			}
+		],
+		"name": "showdown",
+		"outputs": [
+			{
+				"internalType": "uint8[][]",
+				"name": "",
+				"type": "uint8[][]"
+			},
+			{
+				"internalType": "uint8[]",
+				"name": "",
+				"type": "uint8[]"
+			},
+			{
+				"internalType": "uint8[]",
+				"name": "",
+				"type": "uint8[]"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint8",
+				"name": "gameId",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint24",
+				"name": "seed",
+				"type": "uint24"
+			}
+		],
+		"name": "startGame",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint8",
+				"name": "gameId",
+				"type": "uint8"
+			}
+		],
+		"name": "turn",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "firstCard",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "secondCard",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "thirdCard",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "fourthCard",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint24",
+				"name": "_commission",
+				"type": "uint24"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint8",
+				"name": "gameId",
+				"type": "uint8"
+			}
+		],
 		"name": "getCardsDetail",
 		"outputs": [
 			{
@@ -232,6 +344,16 @@
 				"internalType": "uint8[]",
 				"name": "",
 				"type": "uint8[]"
+			},
+			{
+				"internalType": "uint8",
+				"name": "bigBlindPlayer",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "smallBlindPlayer",
+				"type": "uint8"
 			}
 		],
 		"stateMutability": "view",
@@ -403,118 +525,6 @@
 			}
 		],
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint8",
-				"name": "gameId",
-				"type": "uint8"
-			}
-		],
-		"name": "joinGame",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint8",
-				"name": "gameId",
-				"type": "uint8"
-			},
-			{
-				"internalType": "uint24",
-				"name": "raiseAmount",
-				"type": "uint24"
-			}
-		],
-		"name": "raiseAction",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint8",
-				"name": "gameId",
-				"type": "uint8"
-			}
-		],
-		"name": "showdown",
-		"outputs": [
-			{
-				"internalType": "uint8[][]",
-				"name": "",
-				"type": "uint8[][]"
-			},
-			{
-				"internalType": "uint8[]",
-				"name": "",
-				"type": "uint8[]"
-			},
-			{
-				"internalType": "uint8[]",
-				"name": "",
-				"type": "uint8[]"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint8",
-				"name": "gameId",
-				"type": "uint8"
-			},
-			{
-				"internalType": "uint24",
-				"name": "seed",
-				"type": "uint24"
-			}
-		],
-		"name": "startGame",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint8",
-				"name": "gameId",
-				"type": "uint8"
-			}
-		],
-		"name": "turn",
-		"outputs": [
-			{
-				"internalType": "uint8",
-				"name": "firstCard",
-				"type": "uint8"
-			},
-			{
-				"internalType": "uint8",
-				"name": "secondCard",
-				"type": "uint8"
-			},
-			{
-				"internalType": "uint8",
-				"name": "thirdCard",
-				"type": "uint8"
-			},
-			{
-				"internalType": "uint8",
-				"name": "fourthCard",
-				"type": "uint8"
-			}
-		],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	}
 ]

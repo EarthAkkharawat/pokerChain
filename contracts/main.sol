@@ -40,20 +40,8 @@ contract PokerChain {
         Flop,
         Turn,
         River,
-        Finish,
-        Clear
+        Finish
     }
-
-    uint8 private constant HIGH_CARD = 0;
-    uint8 private constant ONE_PAIR = 1;
-    uint8 private constant TWO_PAIR = 2;
-    uint8 private constant THREE_OF_A_KIND = 3;
-    uint8 private constant STRAIGHT = 4;
-    uint8 private constant FLUSH = 5;
-    uint8 private constant FULL_HOUSE = 6;
-    uint8 private constant FOUR_OF_A_KIND = 7;
-    uint8 private constant STRAIGHT_FLUSH = 8;
-    uint8 private constant ROYAL_STRAIGHT_FLUSH = 9;
 
     enum PlayerAction {
         Call,
@@ -214,7 +202,6 @@ contract PokerChain {
         uint24 seed
     ) public onlyState(gameId, GameStatus.AwaitingToStart) validGameId(gameId) {
         Game storage game = games[gameId];
-        // require(game.status == GameStatus.AwaitingToStart, "Game not in correct state");
         require(game.players.length == MAX_PLAYERS, "Table does not full yet");
 
         game.status = GameStatus.PreFlop;
@@ -258,6 +245,9 @@ contract PokerChain {
         game.playerBetAmounts[game.smallBlindPlayer] = game.bigBlindAmount;
         game.playerActions[game.smallBlindPlayer] = PlayerAction.Raise;
         game.isPlayerTakeTurn[game.smallBlindPlayer] = 1;
+
+        game.bigBlindPlayer = (game.bigBlindPlayer + 1) % MAX_PLAYERS;
+        game.smallBlindPlayer = (game.smallBlindPlayer + 1) % MAX_PLAYERS;
     }
 
     function _min(uint24 a, uint24 b) internal pure returns (uint24) {
@@ -626,16 +616,21 @@ contract PokerChain {
     */
     function _resetRound(uint8 gameId) internal {
         Game storage game = games[gameId];
-        bigBlindPlayerId = 0;
-        game.bigBlindPlayer = 0;
-        game.smallBlindPlayer = 0;
         game.pot = 0;
         game.currentBet = 0;
         game.currentPlayerIndex = 0;
         game.status = GameStatus.AwaitingToStart;
-        game.playerActions = new PlayerAction[](0);
-        game.playerBetAmounts = new uint24[](0);
+        game.playerActions = new PlayerAction[](MAX_PLAYERS);
+        game.playerBetAmounts = new uint24[](MAX_PLAYERS);
         game.communityCards = new uint8[](0);
+        game.isPlayerAllIn = new uint8[](MAX_PLAYERS);
+        game.isPlayerTakeTurn = new uint8[](MAX_PLAYERS);
+        game.isPlayerFolded = new uint8[](MAX_PLAYERS);
+
+        game.deck = new uint8[](0);
+        for (uint8 i = 0; i < 52; i++) {
+            game.deck.push(i);
+        }
         _resetPlayerCards(gameId);
     }
 
@@ -674,7 +669,9 @@ contract PokerChain {
             uint24 pot,
             GameStatus status,
             uint8 verifiedPlayerCount,
-            uint8[] memory
+            uint8[] memory,
+            uint8 bigBlindPlayer,
+            uint8 smallBlindPlayer
         )
     {
         Game storage game = games[gameId];
@@ -683,7 +680,9 @@ contract PokerChain {
             game.pot,
             game.status,
             game.verifiedPlayerCount,
-            game.isPlayerInGame
+            game.isPlayerInGame,
+            game.bigBlindPlayer,
+            game.smallBlindPlayer
         );
     }
 
