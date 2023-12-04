@@ -1,11 +1,27 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/utils/Strings.sol"; // OpenZeppelin's Strings library for uint256 to string conversion
+
 library CardUtils {
+
+    function _handToString(uint8[] memory hand) public pure returns (string memory) {
+        bytes memory handString = "[";
+
+        for (uint8 i = 0; i < hand.length; i++) {
+            handString = abi.encodePacked(handString, Strings.toString(hand[i]));
+            if (i < hand.length - 1) {
+                handString = abi.encodePacked(handString, ", ");
+            }
+        }
+
+        handString = abi.encodePacked(handString, "]");
+        return string(handString);
+    }
 
     modifier onlyValidHand(uint8[] memory hand) {
         for (uint8 i = 1; i < hand.length; i++) {
-            require(hand[i] == 255 || hand[i] != hand[i-1], "Duplicate card in hand");
+            require(hand[i] == 255 || hand[i] != hand[i-1], string(abi.encodePacked("Duplicate card in hand. Hand: ", _handToString(hand))));
         }
         _;
     }
@@ -34,10 +50,10 @@ library CardUtils {
         return hand; 
     }
 
-    function combineHand(uint8[] memory playerHands, uint8[] memory tableCards) internal pure returns (uint8[] memory hand) {
+    function combineHand(uint8[] memory playerHands, uint8[] memory tableCards) public pure returns (uint8[] memory hand) {
         hand = new uint8[](7);
         for (uint8 i = 0; i < 2; i++) { hand[i] = playerHands[i]; }
-        for (uint8 j = 0; j < 5; j++) { hand[j] = tableCards[j]; }
+        for (uint8 j = 0; j < 5; j++) { hand[j + 2] = tableCards[j]; }
         hand = sortHand(hand);
         return hand;
     }
@@ -64,7 +80,7 @@ library CardUtils {
         return encodedHand;
     }
 
-    function checkWinningHands(uint8[][] memory playerHands, uint8[] memory tableCards) internal pure returns (uint40[] memory handScores,uint8[] memory winnerIndices) {
+    function checkWinningHands(uint8[][] memory playerHands, uint8[] memory tableCards) public pure returns (uint40[] memory handScores,uint8[] memory winnerIndices) {
         uint8 numberOfPlayers = uint8(playerHands.length);
         handScores = new uint40[](numberOfPlayers);
         // bestHands = new uint8[][](numberOfPlayers);
@@ -81,6 +97,7 @@ library CardUtils {
     function getHandScore(uint8[] memory hand) public pure onlyValidHand(hand) returns (uint40) {
         uint8[] memory bestHand;
         bool passCondition;
+        // hand = sortHand(hand); // redundant since combine hand return sorted hand already
         (passCondition, bestHand) = isEliminated(hand);     if (passCondition) { return encodeHand(bestHand, 0); }
         (passCondition, bestHand) = isRoyalFlush(hand);     if (passCondition) { return encodeHand(bestHand, 10); }
         (passCondition, bestHand) = isStraightFlush(hand);  if (passCondition) { return encodeHand(bestHand, 9); }
@@ -96,7 +113,7 @@ library CardUtils {
     }
 
     function getWinner(uint40[] memory handScores) internal pure returns (uint8[] memory winnerIndices) {
-        uint highestScore = 0;
+        uint40 highestScore = 0;
         uint8 countWinners = 0;
 
         for (uint8 i = 0; i < handScores.length; i++) {
@@ -123,7 +140,7 @@ library CardUtils {
         bool eliminated = false;
         bestHand = new uint8[](5);
         for (uint8 i = 0; i < hand.length; i++) {
-            bestHand[i] = 255;
+            if (i < 5) { bestHand[i] = 255; }
             if (hand[i] == 255) { eliminated = true; }
         }
         return (eliminated, bestHand);
@@ -166,7 +183,7 @@ library CardUtils {
                         bestHand[counter] = hand[j];
                         counter++; 
                     }
-                    else if (currentRank == lastRank - 1) {
+                    else if (lastRank > 0 && currentRank == lastRank - 1) {
                         bestHand[counter] = hand[j];
                         counter++;
                     }
@@ -279,7 +296,7 @@ library CardUtils {
                 bestHand[counter] = hand[i];
                 counter++; 
             }
-            else if (currentRank == lastRank - 1) {
+            else if (lastRank > 0 && currentRank == lastRank - 1) {
                 bestHand[counter] = hand[i];
                 counter++;
             }
