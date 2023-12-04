@@ -9,7 +9,7 @@ library CardUtils {
         bytes memory handString = "[";
 
         for (uint8 i = 0; i < hand.length; i++) {
-            handString = abi.encodePacked(handString, hand[i].toString());
+            handString = abi.encodePacked(handString, Strings.toString(hand[i]));
             if (i < hand.length - 1) {
                 handString = abi.encodePacked(handString, ", ");
             }
@@ -21,10 +21,10 @@ library CardUtils {
 
     modifier onlyValidHand(uint8[] memory hand) {
         // hand = sortHand(hand); // redundant since combine hand return sorted hand already
-        string debugger = string(abi.encodePacked("Duplicate card in hand. Hand: ", _handToString(hand)));
+        // string debugger = string(abi.encodePacked("Duplicate card in hand. Hand: ", _handToString(hand)));
         // bool validHand = true;
         for (uint8 i = 1; i < hand.length; i++) {
-            require(hand[i] == 255 || hand[i] != hand[i-1], debugger);
+            require(hand[i] == 255 || hand[i] != hand[i-1], string(abi.encodePacked("Duplicate card in hand. Hand: ", _handToString(hand))));
             // if (hand[i] != 255 && hand[i] == hand[i-1]) { validHand = false; }
         }
         // require(validHand,"Duplicate card in hand");
@@ -58,7 +58,7 @@ library CardUtils {
     function combineHand(uint8[] memory playerHands, uint8[] memory tableCards) internal pure returns (uint8[] memory hand) {
         hand = new uint8[](7);
         for (uint8 i = 0; i < 2; i++) { hand[i] = playerHands[i]; }
-        for (uint8 j = 0; j < 5; j++) { hand[j] = tableCards[j]; }
+        for (uint8 j = 0; j < 5; j++) { hand[j+2] = tableCards[j]; }
         hand = sortHand(hand);
         return hand;
     }

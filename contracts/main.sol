@@ -572,9 +572,9 @@ contract PokerChain {
         }
         (uint40[] memory bestHands, uint8[] memory winnerIndices) = CardUtils
             .checkWinningHands(playerHands, game.communityCards);
-        uint256 rewards = game.pot / winnerIndices.length;
+        uint24 rewards = game.pot / winnerIndices.length;
         for (uint i = 0; i < winnerIndices.length; i++) {
-            game.playerChips[game.players[i]] += uint24(rewards);
+            game.playerChips[game.players[winnerIndices[i]]] += uint24(rewards);
         }
 
         uint8[][] memory bestHandsDecoded = new uint8[][](bestHands.length);
@@ -740,12 +740,14 @@ contract PokerChain {
 
     function getCardsDetail(
         uint8 gameId
-    ) public view returns (uint8[][] memory, uint8[] memory, uint8 deckLength) {
+    ) public view returns (uint8[][] memory, uint8[] memory, uint8 deckLength, uint40[] memory, uint8[] memory) {
         Game storage game = games[gameId];
         uint8[][] memory playerHands = new uint8[][](game.numPlayerInGame);
         for (uint i = 0; i < game.players.length; i++) {
             playerHands[i] = game.playerCards[game.players[i]];
         }
-        return (playerHands, game.communityCards, uint8(game.deck.length));
+        (uint40[] memory bestHands, uint8[] memory winnerIndices) = CardUtils
+            .checkWinningHands(playerHands, game.communityCards);
+        return (playerHands, game.communityCards, uint8(game.deck.length), bestHands, winnerIndices);
     }
 }
