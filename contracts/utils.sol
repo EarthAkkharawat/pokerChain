@@ -1,16 +1,33 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/utils/Strings.sol"; // OpenZeppelin's Strings library for uint256 to string conversion
+
 library CardUtils {
 
-    modifier onlyValidHand(uint8[] memory hand) {
-        hand = sortHand(hand); // redundant since combine hand return sorted hand already
-        bool validHand = true;
-        for (uint8 i = 1; i < hand.length; i++) {
-            // require(hand[i] == 255 || hand[i] != hand[i-1], "Duplicate card in hand");
-            if (hand[i] != 255 && hand[i] == hand[i-1]) { validHand = false; }
+    function _handToString(uint8[] memory hand) public pure returns (string memory) {
+        bytes memory handString = "[";
+
+        for (uint8 i = 0; i < hand.length; i++) {
+            handString = abi.encodePacked(handString, hand[i].toString());
+            if (i < hand.length - 1) {
+                handString = abi.encodePacked(handString, ", ");
+            }
         }
-        require(validHand,"Duplicate card in hand");
+
+        handString = abi.encodePacked(handString, "]");
+        return string(handString);
+    }
+
+    modifier onlyValidHand(uint8[] memory hand) {
+        // hand = sortHand(hand); // redundant since combine hand return sorted hand already
+        string debugger = string(abi.encodePacked("Duplicate card in hand. Hand: ", _handToString(hand)));
+        // bool validHand = true;
+        for (uint8 i = 1; i < hand.length; i++) {
+            require(hand[i] == 255 || hand[i] != hand[i-1], debugger);
+            // if (hand[i] != 255 && hand[i] == hand[i-1]) { validHand = false; }
+        }
+        // require(validHand,"Duplicate card in hand");
         _;
     }
 
