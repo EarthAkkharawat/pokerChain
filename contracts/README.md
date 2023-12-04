@@ -47,6 +47,8 @@
 - `playerCards`: Mapping from player address to an array of their cards.
 - `playerActions`: Dynamic array of actions taken by each player.
 - `isPlayerInGame`: Dynamic array indicating whether a player is still active in the game.
+- `isPlayerTakeTurn`: Dynamic array indicating whether a player is already done an action in their turn.
+- `isPlayerFolded;`: Dynamic array indicating whether a player is folded.
 - `isPlayerAllIn`: Dynamic array indicating whether a player has gone all-in.
 - `playerBetAmounts`: Dynamic array of the amount each player has bet in the current round.
 - `deck`: Dynamic array representing the deck of cards.
@@ -433,6 +435,13 @@ Determines if a hand is two pairs.
   - `uint8[] memory`: The best hand if it's two pairs.
 
 [...End of Function Documentation...]
+
+
+## Deployment
+This contract is initialized and deployed using Remix IDE, with MetaMask as the chosen wallet, on the Sepolia network.
+
+## License
+This smart contract is released under the MIT License. See the SPDX-License-Identifier at the top of the code for details.
 
 
 
