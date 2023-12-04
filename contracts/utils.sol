@@ -4,9 +4,13 @@ pragma solidity ^0.8.0;
 library CardUtils {
 
     modifier onlyValidHand(uint8[] memory hand) {
+        hand = sortHand(hand); // redundant since combine hand return sorted hand already
+        bool validHand = true;
         for (uint8 i = 1; i < hand.length; i++) {
-            require(hand[i] == 255 || hand[i] != hand[i-1], "Duplicate card in hand");
+            // require(hand[i] == 255 || hand[i] != hand[i-1], "Duplicate card in hand");
+            if (hand[i] != 255 && hand[i] == hand[i-1]) { validHand = false; }
         }
+        require(validHand,"Duplicate card in hand");
         _;
     }
 
@@ -81,6 +85,7 @@ library CardUtils {
     function getHandScore(uint8[] memory hand) public pure onlyValidHand(hand) returns (uint40) {
         uint8[] memory bestHand;
         bool passCondition;
+        // hand = sortHand(hand); // redundant since combine hand return sorted hand already
         (passCondition, bestHand) = isEliminated(hand);     if (passCondition) { return encodeHand(bestHand, 0); }
         (passCondition, bestHand) = isRoyalFlush(hand);     if (passCondition) { return encodeHand(bestHand, 10); }
         (passCondition, bestHand) = isStraightFlush(hand);  if (passCondition) { return encodeHand(bestHand, 9); }
@@ -96,7 +101,7 @@ library CardUtils {
     }
 
     function getWinner(uint40[] memory handScores) internal pure returns (uint8[] memory winnerIndices) {
-        uint highestScore = 0;
+        uint40 highestScore = 0;
         uint8 countWinners = 0;
 
         for (uint8 i = 0; i < handScores.length; i++) {
