@@ -22,12 +22,6 @@ const CreateTableModal: React.FC<CreateTableModalProps> = ({
   const [buyIn, setBuyIn] = useState<number>(0);
   const [contract, setContract] = useState<any>(null);
 
-  const joinTable = (tableId: number) => {
-    const options = { value: buyIn.toString() };
-    contract.joinGame(tableId, options);
-    console.log(`Joining table ${tableId}`);
-    navigate(`/table/${tableId}`);
-  };
 
   useEffect(() => {
     const fetchData = async () => {

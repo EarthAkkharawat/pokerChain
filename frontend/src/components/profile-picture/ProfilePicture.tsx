@@ -7,14 +7,17 @@ import './ProfilePicture.css';
 interface ProfilePictureProps {
     size?: string;
     showName?: boolean;
+    playerAddr?: string;
 }
 
 const ProfilePicture: React.FC<ProfilePictureProps> = ({
     size = "250px",
     showName = true,
+    playerAddr,
 }) => {
     const baseIPSF = 'https://bafybeife54yhvhxgyvxbsqvwpw5d2ayr4umsqdwwbupn4tlqh7ud4qf6zi.ipfs.dweb.link'
-    const accountAddr = localStorage.getItem('accountAddr');
+    // const accountAddr = localStorage.getItem('accountAddr');
+    const accountAddr = playerAddr;
     let nftNo = -1;
     const [nftNoList, setNftNoList] = useState<number[]>([0]);
     useEffect(() => {
@@ -29,14 +32,12 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
         try {
             if (window.ethereum) {
                 const contract = await getNFTContract();
-
                 const totalSupply = await contract.MAX_SUPPLY();
                 for (let i = 0; i < totalSupply; i++) {
                     contract.ownerOf(i).then((owner) => {
                         if (owner === accountAddr) {
                             // console.log("owner", i)
                             var temp = nftNoList;
-
                             setNftNoList(insertIfNotExist(temp, i));
                             setNftNoList(prevList => insertIfNotExist([...prevList], i));
                         }
@@ -49,7 +50,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
 
     }
     const insertIfNotExist = (arr: number[], nftNo: number) => {
-        console.log("arr", arr.indexOf(nftNo))
+        // console.log("arr", arr.indexOf(nftNo))
         if (arr.indexOf(nftNo) === -1) {
             arr.push(nftNo);
         }
@@ -57,12 +58,12 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
     }
 
     const allProfilePicture = () => {
-        console.log("nftNoList", nftNoList)
+        // console.log("nftNoList", nftNoList)
         // if (nftNoList) {
         return (
             <>
                 <div className="account-address" style={{ paddingTop: "100px", paddingBottom: "10px" }}>
-                    Player Address: {accountAddr}
+                    Player Address: {accountAddr![0] + accountAddr![1] + accountAddr![2] + accountAddr![3] + accountAddr![4] + accountAddr![5] + "..." + accountAddr![accountAddr!.length - 5] + accountAddr![accountAddr!.length - 4] + accountAddr![accountAddr!.length - 3] + accountAddr![accountAddr!.length - 2] + accountAddr![accountAddr!.length - 1]}
                 </div>
                 {nftNoList.map((nftNo) => (
                     <Image src={`${baseIPSF}/${nftNo}.png`} className='picture' alt="profile" style={{ width: size, height: size, paddingLeft: "10px" }} roundedCircle />
@@ -81,7 +82,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
     return (
         <Container fluid className="mb-5">
             {allProfilePicture()}
-            {showName && <p style={{ color: "#FFFFFF" }}> someName</p>}
+            {showName && <p style={{ color: "#FFFFFF" }}> </p>}
         </Container>
     );
 };
