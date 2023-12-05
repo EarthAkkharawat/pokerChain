@@ -148,7 +148,7 @@ const Table: React.FC = () => {
               <Button variant="light" style = {{}} onClick={() => check()}>Check</Button>
               <Button variant="light" style = {{}} onClick={() => call()}>Call</Button>
               <Button variant="light" style = {{}} onClick={() => raise(value)}>Raise</Button>
-              <Button variant="light" style = {{}} onClick={() => fold}>Fold</Button> 
+              <Button variant="light" style = {{}} onClick={() => fold()}>Fold</Button> 
             </div> 
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
             <RangeSlider
