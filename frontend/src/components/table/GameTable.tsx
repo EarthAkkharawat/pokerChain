@@ -27,6 +27,9 @@ const Table: React.FC = () => {
   const [gameId, setGameId] = useState<number>(-1);
   const [gameStatus, setGameStatus] = useState<number>(1);
   const [tableCards, setTableCards] = useState<number[]>([255,255,255,255,255]);
+  const [potSize, setPotSize] = useState<number>(0);
+  const [currentPlayer, setCurrentPlayer] = useState<string>("");
+  const [nextPlayer, setNextPlayer] = useState<string>("");
 
   useEffect(() => {
     const fetchContract = async () => {
@@ -43,21 +46,27 @@ const Table: React.FC = () => {
     if (contract && gameId >= 0) {
         const handleOpenTableCard = (gameId: number, communityCards: number[]) => {
             setTableCards(communityCards);
-            console.log("communityCards updated:", communityCards)
+            console.log("communityCards updated ->", communityCards)
         };
         const handleNextPlayerAction = (gameId: number, player: string, actionType: number, amount: number, nextPlayer: string) => {
             // Handle Next Player Action
+            // 1 = CALL, 2 = RAISE, 3 = CHECK, 4 = FOLD, 5 = IDLE, 6 = ALLIN
+            setCurrentPlayer(player);
+            setNextPlayer(nextPlayer);
             console.log("turn changed -> current player",player,"next player", nextPlayer)
         };
     
         const handleGameEnded = (gameId: number, winner: string, winnings: number) => {
           // Handle Game Ended
+          // some logic here
+            alert("Game ended\nwinner: " + winner + "\nwinnings: " + winnings)
             console.log("Game ended -> winner:", winner, "winnings:", winnings)
         };
     
         const handlePotUpdated = (gameId: number, newPotSize: number) => {
           // Handle Pot Updated
-            console.log("newPotSize:", newPotSize)
+            setPotSize(newPotSize);
+            console.log("newPotSize ->", newPotSize)
         };
 
         contract.on('GameStateChanged', handleOpenTableCard);
@@ -142,6 +151,11 @@ const Table: React.FC = () => {
 
       {(gameStatus > 2 || true) && (
         <>
+          <div style = {{ display:"flex",flexDirection:"column", backgroundColor:"blue", color:"white"}}>
+            <div>POT SIZE: {potSize}</div>
+            <div>CURRENT ADDRESS: {currentPlayer}</div>
+            <div>NEXT ADDRESS: {nextPlayer}</div>
+          </div>
           <Row className="mt-5">
             <Col>
               <OtherPlayer />

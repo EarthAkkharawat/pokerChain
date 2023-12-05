@@ -16,7 +16,7 @@ const CreateTableModal: React.FC<CreateTableModalProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const [blindAmount, setblindAmount] = useState<number>(0);
+  const [blindAmount, setblindAmount] = useState<number>(100);
   const [minBuyIn, setMinBuyIn] = useState<number>(0);
   const [maxBuyIn, setMaxBuyIn] = useState<number>(0);
   const [buyIn, setBuyIn] = useState<number>(0);
