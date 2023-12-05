@@ -11,6 +11,8 @@ const CARD_WIDTH = 175;
 const CARD_HEIGHT = 225;
 
 const SelfPlayer: React.FC<SelfPlayerProps> = ({ playerCards }) => {
+  const selfPlayerAddr = localStorage.getItem("accountAddr");
+
   return (
     <Container>
       <Row className="position-relative">
@@ -34,11 +36,12 @@ const SelfPlayer: React.FC<SelfPlayerProps> = ({ playerCards }) => {
           className="position-absolute"
           style={{
             zIndex: 1,
-            left: "250px",
-            top: "100px",
+            left: "350px",
+            bottom: "1px",
+            // top: "100px",
           }}
         >
-          <ProfilePicture size="100px" />
+          <ProfilePicture size="70px" playerAddr={selfPlayerAddr!} />
         </Col>
       </Row>
     </Container>
