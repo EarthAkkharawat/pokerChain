@@ -13,7 +13,7 @@ interface ProfilePictureProps {
 const ProfilePicture: React.FC<ProfilePictureProps> = ({
     size = "250px",
     showName = true,
-    playerAddr,
+    playerAddr = localStorage.getItem('accountAddr'),
 }) => {
     const baseIPSF = 'https://bafybeife54yhvhxgyvxbsqvwpw5d2ayr4umsqdwwbupn4tlqh7ud4qf6zi.ipfs.dweb.link'
     // const accountAddr = localStorage.getItem('accountAddr');
@@ -58,18 +58,22 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
     }
 
     const allProfilePicture = () => {
-        // console.log("nftNoList", nftNoList)
-        // if (nftNoList) {
+        if (!accountAddr) {
+            return null; // or return a loading spinner, or some placeholder content
+        }
+
+        const shortAddr = `${accountAddr.slice(0, 6)}...${accountAddr.slice(-4)}`;
+
         return (
             <>
                 <div className="account-address" style={{ paddingTop: "100px", paddingBottom: "10px" }}>
-                    Player Address: {accountAddr![0] + accountAddr![1] + accountAddr![2] + accountAddr![3] + accountAddr![4] + accountAddr![5] + "..." + accountAddr![accountAddr!.length - 5] + accountAddr![accountAddr!.length - 4] + accountAddr![accountAddr!.length - 3] + accountAddr![accountAddr!.length - 2] + accountAddr![accountAddr!.length - 1]}
+                    Player Address: {shortAddr}
                 </div>
                 {nftNoList.map((nftNo) => (
                     <Image src={`${baseIPSF}/${nftNo}.png`} className='picture' alt="profile" style={{ width: size, height: size, paddingLeft: "10px" }} roundedCircle />
                 ))}
             </>
-        )
+        );
         // }
     }
 
