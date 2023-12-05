@@ -6,7 +6,7 @@ interface CardRowProps {
 }
 
 const CardRow: React.FC<CardRowProps> = ({ cards }) => {
-  console.log(cards);
+  // console.log(cards);
   return (
     <div>
       {cards.map((card, index) => {

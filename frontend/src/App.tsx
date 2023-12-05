@@ -32,7 +32,7 @@ function App() {
                 authenticationPath="/"
               >
                 <GameLanding />
-                {/* <GameTable /> */}
+                {/* <GameTable />  */}
               </ProtectedRoute>
             }
           />
@@ -43,7 +43,8 @@ function App() {
                 isAuthenticated={isAuthenticated}
                 authenticationPath="/"
               >
-                <Game />
+                {/* <Game /> */}
+                <GameTable /> 
               </ProtectedRoute>
             }
           />
