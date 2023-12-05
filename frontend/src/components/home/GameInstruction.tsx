@@ -17,7 +17,7 @@ const GameInstruction: React.FC = () => {
   const joinTable = async (tableId: number) => {
     try {
       const contract = await getPokerGameContract();
-      contract.joinGame(tableId, { value: 50 });
+      contract.joinGame(tableId, { value: 100 });
       console.log(`Joining table ${tableId}`);
       navigate(`/table/${tableId}`);
     } catch (error) {
