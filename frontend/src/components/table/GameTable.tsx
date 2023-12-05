@@ -81,7 +81,7 @@ const Table: React.FC = () => {
         // contract.off('GameStateChanged', listener);
       };
     }
-  }, []);
+  }, [gameId, contract]);
 
   // useEffect(() => {
   //   const fetchGameDetails = async () => {
@@ -117,13 +117,13 @@ const Table: React.FC = () => {
     const fetchPlayerCards = async () => {
       console.log("fetchPlayerCards", contract)
       if (contract) {
-        const playerCards = await contract.getMyHand(gameId);
-        console.log("playerCards ->", playerCards)
-        setPlayerCards(playerCards);
+        const playerCard = await contract.getMyHand(gameId);
+        console.log("playerCards ->", playerCards);
+        setPlayerCards(playerCard);
       }
     }
     fetchPlayerCards();
-  }, [])
+  }, [gameId, contract])
 
   const check = async () => {
     if (contract) {

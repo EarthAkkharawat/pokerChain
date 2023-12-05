@@ -25,7 +25,7 @@ const OtherPlayer: React.FC<OtherPlayerProps> = ({
     const fetchData = async () => {
       fetchedContract = await getPokerGameContract();
       setContract(fetchedContract);
-      console.log("fetchedContract2", fetchedContract)
+      // console.log("fetchedContract2", fetchedContract)
       // get Players
       const selfPlayer = localStorage.getItem("accountAddr");
       const tableId = window.location.pathname.split("/")[2];
