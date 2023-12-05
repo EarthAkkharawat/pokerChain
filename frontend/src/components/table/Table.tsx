@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";
 import { getPokerGameContract } from "../../utils/contracts";
-
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 const GameTable: React.FC = () => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -11,8 +13,13 @@ const GameTable: React.FC = () => {
   const [maxBuyIn, setMaxBuyIn] = useState<number>(0);
   const [buyIn, setBuyIn] = useState<number>(0);
   const [gameList, setGameList] = useState<number[]>([]);
+  const [contract, setContract] = useState<any>(null);
+  const [gameCount, setGameCount] = useState<number>(0);
+  // const [temp, setTemp] = useState<any>(null);
 
   const joinTable = (tableId: number) => {
+    const options = { value: buyIn.toString() };
+    contract.joinGame(tableId, options);
     console.log(`Joining table ${tableId}`);
     navigate(`/table/${tableId}`);
   };
@@ -21,28 +28,66 @@ const GameTable: React.FC = () => {
     setShowModal(true);
   };
 
+  const fetchContract = async () => {
+    await getPokerGameContract().then((contract) => {
+      // console.log("contract:", contract)
+      setContract(contract);
+    });
+  }
+  const fetchGameCount = async () => {
+    try {
+      // var temp = await contract.getNumGames();
+      // console.log("temp:", temp)
+      // setGameCount(temp);
+      // console.log("Game count:", gameCount)
+      await contract.getNumGames().then((count: number) => {
+        // console.log("count", count)
+        setGameCount(count);
+        // console.log("contract in game count:", contract)
+        // console.log("Game count:", gameCount)
+      });
+    } catch (error) {
+      console.error("Error fetching game count:", error);
+    }
+  }
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchContract();
+      await sleep(2000);
+      await fetchGameCount();
+      await sleep(2000);
+
+      await setGameList(Array.from({ length: Number(gameCount) }, (_, i) => i));
+    }
+    fetchData();
+    // fetchContract().then(() => {
+    //   fetchGameCount().then(() => {
+    //     setGameList(Array.from({ length: Number(gameCount) }, (_, i) => i));
+    //   });
+    // });
+  }, [contract])
+
+  // useEffect(() => {
+  //   fetchGameCount();
+  //   setGameList(Array.from({ length: Number(gameCount) }, (_, i) => i));
+
+  // }, [contract])
+
   const handleSubmit = async () => {
     setShowModal(false);
     try {
-      const contract = await getPokerGameContract();
-      console.log(contract);
-
-      const options = { value: buyIn.toString() };
+      console.log("contract:", contract);
       const tx = await contract.createGame(
-          smallBlind,
-          minBuyIn,
-          maxBuyIn,
-          options,
+        smallBlind,
+        minBuyIn,
+        maxBuyIn,
       );
       await tx.wait();
-      const gameCount = await contract.getGameCount();
-      setGameList(Array.from({ length: gameCount }, (_, i) => i));
 
     } catch (error) {
       console.error("Error creating table:", error);
     }
   };
-  console.log(gameList);
   return (
     <div>
       <h2>Available Poker Tables</h2>

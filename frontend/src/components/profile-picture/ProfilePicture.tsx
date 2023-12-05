@@ -4,9 +4,6 @@ import { getNFTContract } from '../../utils/contracts';
 // import { accountAddr } from '../login/Login';
 import './ProfilePicture.css';
 
-// let nftNoList: number[] = [1];
-
-
 const ProfilePicture: React.FC = () => {
     const baseIPSF = 'https://bafybeife54yhvhxgyvxbsqvwpw5d2ayr4umsqdwwbupn4tlqh7ud4qf6zi.ipfs.dweb.link'
     const accountAddr = localStorage.getItem('accountAddr');
@@ -19,23 +16,24 @@ const ProfilePicture: React.FC = () => {
             nftNo = -1;
         }
     }, [])
+    // Get profile picture that user has owned
     const getProfile = async () => {
         try {
-            // if (window.ethereum) {
-            const contract = await getNFTContract();
-            const totalSupply = await contract.MAX_SUPPLY();
-            for (let i = 0; i < totalSupply; i++) {
-                contract.ownerOf(i).then((owner) => {
-                    if (owner === accountAddr) {
-                        console.log("owner", i)
-                        var temp = nftNoList;
+            if (window.ethereum) {
+                const contract = await getNFTContract();
+                const totalSupply = await contract.MAX_SUPPLY();
+                for (let i = 0; i < totalSupply; i++) {
+                    contract.ownerOf(i).then((owner) => {
+                        if (owner === accountAddr) {
+                            // console.log("owner", i)
+                            var temp = nftNoList;
 
-                        setNftNoList(insertIfNotExist(temp, i));
-                        setNftNoList(prevList => insertIfNotExist([...prevList], i));
-                    }
-                })
+                            setNftNoList(insertIfNotExist(temp, i));
+                            setNftNoList(prevList => insertIfNotExist([...prevList], i));
+                        }
+                    })
+                }
             }
-            // }
         } catch (error) {
             console.log(error)
         }
@@ -49,7 +47,7 @@ const ProfilePicture: React.FC = () => {
     }
 
     const allProfilePicture = () => {
-        console.log("nftNoList", nftNoList)
+        // console.log("nftNoList", nftNoList)
         // if (nftNoList) {
         return (
             <>
@@ -64,8 +62,6 @@ const ProfilePicture: React.FC = () => {
         <>
             <div>Profile Picture: {accountAddr}</div>
             {allProfilePicture()}
-
-            {/* <img src={`${baseIPSF}/${1}.png`} className='picture' alt="profile" /> */}
         </>
     );
 };
