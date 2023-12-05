@@ -106,20 +106,15 @@ const Table: React.FC = () => {
         gameId,
         seed
       );
+      const playerCards = await contract.getMyHand(gameId);
+      console.log("playerCards ->", playerCards)
+      setPlayerCards(playerCards);
       await tx.wait();
       console.log("Game started");
     } catch (error) {
       alert(error);
     }
   };
-  useEffect(() => {
-    const temp = async () => {
-      const playerCards = await contract.getMyHand(gameId);
-      console.log("playerCards ->", playerCards)
-      setPlayerCards(playerCards);
-    }
-    temp();
-  }, [])
   // console.log("playerCards ->", playerCards)
 
   const check = async () => {
