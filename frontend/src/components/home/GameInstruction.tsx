@@ -23,14 +23,18 @@ const GameInstruction: React.FC = () => {
     <div style={{ color: "#FFFFFF" }}>
       <h2>Available Poker Tables</h2>
       {gameList.map((tableId) => (
-        <div key={tableId} onClick={() => joinTable(tableId)}>
-          <p>Table {tableId}</p>
-          <button>Join Table</button>
+        <div 
+          key={tableId} 
+          style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent:'center'}}
+          onClick={() => joinTable(tableId)}
+        >
+          <p style={{ margin: '0 10px 0 0' }}>Table {tableId}</p>
+          <button style={{ margin: 0 }}>Join Table</button>
         </div>
       ))}
-      <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent:'center'}}>
         <p>Create a New Table</p>
-        <Button onClick={createTable} variant="dark">
+        <Button onClick={createTable} variant="light" style={{ margin: 0 }}>
           Create Table
         </Button>
       </div>
