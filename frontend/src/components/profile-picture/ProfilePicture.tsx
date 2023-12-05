@@ -1,10 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
+import { Container, Image } from "react-bootstrap";
 import { Navigate, useLocation } from 'react-router-dom';
 import { getNFTContract } from '../../utils/contracts';
 // import { accountAddr } from '../login/Login';
 import './ProfilePicture.css';
+interface ProfilePictureProps {
+    size?: string;
+    showName?: boolean;
+}
 
-const ProfilePicture: React.FC = () => {
+const ProfilePicture: React.FC<ProfilePictureProps> = ({
+    size = "250px",
+    showName = true,
+}) => {
     const baseIPSF = 'https://bafybeife54yhvhxgyvxbsqvwpw5d2ayr4umsqdwwbupn4tlqh7ud4qf6zi.ipfs.dweb.link'
     const accountAddr = localStorage.getItem('accountAddr');
     let nftNo = -1;
@@ -35,8 +43,9 @@ const ProfilePicture: React.FC = () => {
                 }
             }
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
+
     }
     const insertIfNotExist = (arr: number[], nftNo: number) => {
         console.log("arr", arr.indexOf(nftNo))
@@ -58,11 +67,25 @@ const ProfilePicture: React.FC = () => {
         )
         // }
     }
+
+    useEffect(() => {
+        getProfile();
+        if (nftNoList.length === 0) {
+            // nftNo = -1;
+        }
+    }, []);
     return (
-        <>
-            <div>Profile Picture: {accountAddr}</div>
-            {allProfilePicture()}
-        </>
+        <Container className="mb-5">
+            <Image
+                src={`${baseIPSF}/${nftNoList[0]}.png`}
+                className="picture"
+                alt="profile"
+                // sizes="2"
+                style={{ width: size, height: size }}
+                roundedCircle
+            />
+            {showName && <p style={{ color: "#FFFFFF" }}> someName</p>}
+        </Container>
     );
 };
 
