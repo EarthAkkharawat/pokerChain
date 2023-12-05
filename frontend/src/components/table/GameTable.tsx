@@ -7,6 +7,7 @@ import SelfPlayer from "../self-player/SelfPlayer";
 import OtherPlayer from "../other-player/OtherPlayer";
 import CardRow from "../card/CardRow";
 import { getPokerGameContract } from "../../utils/contracts";
+import RangeSlider from 'react-bootstrap-range-slider';
 
 import pokerBG from "../../assets/poker-background.jpg";
 import "./GameTable.styles.css";
@@ -112,32 +113,51 @@ const Table: React.FC = () => {
       }
   };
 
-  const callAction = async () => {
-    if (!contract) return;
-    try {
-
-    } catch (error) {
-      alert(error);
-    }
-  };
-
-  const raiseAction = async (raiseAmount: Number) => {
-    if (!contract) return;
-    try {
-
-    } catch (error) {
-      alert(error);
+  const check = async () => {
+    if (contract) {
+      try {
+        await contract.checkAction(gameId);
+      }
+      catch (error) {
+        alert(error);
+      }
     }
   }
 
-  const foldAction = async () => {
-    if (!contract) return;
-    try {
-
-    } catch (error) {
-      alert(error);
+  const call = async () => {
+    if (contract) {
+      try {
+        await contract.callAction(gameId);
+      }
+      catch (error) {
+        alert(error);
+      }
     }
-  };
+  }
+   
+  const raise = async (raiseAmount: Number) => {
+    if (contract) {
+      try {
+        await contract.raiseAction(gameId, raiseAmount);
+      }
+      catch (error) {
+        alert(error);
+      }
+    }
+  } 
+
+  const fold = async () => {
+    if (contract) {
+      try {
+        await contract.foldAction(gameId);
+      }
+      catch (error) {
+        alert(error);
+      }
+    }
+  }
+
+  const [ value, setValue ] = useState<number| any>(0); 
 
   return (
     <Container
@@ -169,6 +189,20 @@ const Table: React.FC = () => {
           </Row>
           <Row className="mb-5">
             <SelfPlayer playerCards={MOCK_PLAYER_CARDS} />
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '5%'}}>
+              <Button variant="light" style = {{}} onClick={() => check()}>Check</Button>
+              <Button variant="light" style = {{}} onClick={() => call()}>Call</Button>
+              <Button variant="light" style = {{}} onClick={() => raise(value)}>Raise</Button>
+              <Button variant="light" style = {{}} onClick={() => fold}>Fold</Button> 
+            </div> 
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+            <RangeSlider
+                value={value}
+                onChange={changeEvent => setValue(changeEvent.target.value)}
+                min={10}
+                max={200}
+              />
+            </div>
           </Row>
         </>
       )}
