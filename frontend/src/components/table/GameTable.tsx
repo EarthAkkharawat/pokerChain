@@ -41,15 +41,33 @@ const Table: React.FC = () => {
 
   useEffect(() => {
     if (contract && gameId >= 0) {
-        const listener = (gameId: number, communityCards: number[]) => {
+        const handleOpenTableCard = (gameId: number, communityCards: number[]) => {
             setTableCards(communityCards);
+            console.log("communityCards updated:", communityCards)
+        };
+        const handleNextPlayerAction = (gameId: number, player: string, actionType: number, amount: number, nextPlayer: string) => {
+            // Handle Next Player Action
+            console.log("turn changed -> current player",player,"next player", nextPlayer)
+        };
+    
+        const handleGameEnded = (gameId: number, winner: string, winnings: number) => {
+          // Handle Game Ended
+            console.log("Game ended -> winner:", winner, "winnings:", winnings)
+        };
+    
+        const handlePotUpdated = (gameId: number, newPotSize: number) => {
+          // Handle Pot Updated
+            console.log("newPotSize:", newPotSize)
         };
 
-        contract.on('GameStateChanged', listener);
+        contract.on('GameStateChanged', handleOpenTableCard);
+        contract.on('NextPlayerAction', handleNextPlayerAction);
+        contract.on('GameEnded', handleGameEnded);
+        contract.on('PotUpdated', handlePotUpdated);
 
         // Cleanup function
         return () => {
-            contract.off('GameStateChanged', listener);
+            // contract.off('GameStateChanged', listener);
         };
     }
   }, [contract, gameId]);
