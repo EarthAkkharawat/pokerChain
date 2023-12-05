@@ -21,44 +21,25 @@ const CreateTableModal: React.FC<CreateTableModalProps> = ({
   const [maxBuyIn, setMaxBuyIn] = useState<number>(0);
   const [buyIn, setBuyIn] = useState<number>(0);
   const [contract, setContract] = useState<any>(null);
-  const [gameCount, setGameCount] = useState<number>(0);
+
   const joinTable = (tableId: number) => {
     const options = { value: buyIn.toString() };
     contract.joinGame(tableId, options);
     console.log(`Joining table ${tableId}`);
     navigate(`/table/${tableId}`);
   };
-  const fetchContract = async () => {
-    await getPokerGameContract().then((contract) => {
-      // console.log("contract:", contract)
-      setContract(contract);
-    });
-  }
-  const fetchGameCount = async () => {
-    try {
-      // var temp = await contract.getNumGames();
-      // console.log("temp:", temp)
-      // setGameCount(temp);
-      // console.log("Game count:", gameCount)
-      await contract.getNumGames().then((count: number) => {
-        // console.log("count", count)
-        setGameCount(count);
-        // console.log("contract in game count:", contract)
-        // console.log("Game count:", gameCount)
-      });
-    } catch (error) {
-      console.error("Error fetching game count:", error);
-    }
-  }
+
   useEffect(() => {
     const fetchData = async () => {
-      await fetchContract();
-      await fetchGameCount();
+      const fetchedContract = await getPokerGameContract();
+      setContract(fetchedContract);
+      const count = await fetchedContract.getNumGames();
+      setGameList(Array.from({ length: Number(count) }, (_, i) => i));
+    };
 
-      await setGameList(Array.from({ length: Number(gameCount) }, (_, i) => i));
-    }
     fetchData();
-  }, [contract])
+  }, []); // Empty dependency array to run only once on mount
+
   const handleSubmit = async () => {
     setShowModal(false);
     try {
