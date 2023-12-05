@@ -25,11 +25,11 @@ const OtherPlayer: React.FC<OtherPlayerProps> = ({
     const fetchData = async () => {
       fetchedContract = await getPokerGameContract();
       setContract(fetchedContract);
-
+      console.log("fetchedContract2", fetchedContract)
       // get Players
       const selfPlayer = localStorage.getItem("accountAddr");
       const tableId = window.location.pathname.split("/")[2];
-      console.log("fetchedContract", fetchedContract)
+      // console.log("fetchedContract", fetchedContract)
       const fetchedPlayers = await fetchedContract.getPlayers(tableId);
       const OtherPlayer: string[] = fetchedPlayers.filter((player: string) => {
         // console.log(player);

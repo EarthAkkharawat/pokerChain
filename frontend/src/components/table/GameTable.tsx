@@ -81,7 +81,7 @@ const Table: React.FC = () => {
         // contract.off('GameStateChanged', listener);
       };
     }
-  }, [contract, gameId]);
+  }, []);
 
   // useEffect(() => {
   //   const fetchGameDetails = async () => {
@@ -100,22 +100,30 @@ const Table: React.FC = () => {
   // }, [contract, gameId, gameStatus]); 
 
   const startGame = async (seed: Number) => {
+    console.log("startGame", contract)
     if (!contract) return;
     try {
       const tx = await contract.startGame(
         gameId,
         seed
       );
-      const playerCards = await contract.getMyHand(gameId);
-      console.log("playerCards ->", playerCards)
-      setPlayerCards(playerCards);
       await tx.wait();
       console.log("Game started");
     } catch (error) {
       alert(error);
     }
   };
-  // console.log("playerCards ->", playerCards)
+  useEffect(() => {
+    const fetchPlayerCards = async () => {
+      console.log("fetchPlayerCards", contract)
+      if (contract) {
+        const playerCards = await contract.getMyHand(gameId);
+        console.log("playerCards ->", playerCards)
+        setPlayerCards(playerCards);
+      }
+    }
+    fetchPlayerCards();
+  }, [])
 
   const check = async () => {
     if (contract) {
