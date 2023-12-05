@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Image } from "react-bootstrap";
+import { Container, Image, Row } from "react-bootstrap";
 import { Navigate, useLocation } from 'react-router-dom';
 import { getNFTContract } from '../../utils/contracts';
 // import { accountAddr } from '../login/Login';
@@ -29,6 +29,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
         try {
             if (window.ethereum) {
                 const contract = await getNFTContract();
+
                 const totalSupply = await contract.MAX_SUPPLY();
                 for (let i = 0; i < totalSupply; i++) {
                     contract.ownerOf(i).then((owner) => {
@@ -56,12 +57,15 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
     }
 
     const allProfilePicture = () => {
-        // console.log("nftNoList", nftNoList)
+        console.log("nftNoList", nftNoList)
         // if (nftNoList) {
         return (
             <>
+                <div className="account-address" style={{ paddingTop: "100px", paddingBottom: "10px" }}>
+                    Player Address: {accountAddr}
+                </div>
                 {nftNoList.map((nftNo) => (
-                    <img src={`${baseIPSF}/${nftNo}.png`} className='picture' alt="profile" />
+                    <Image src={`${baseIPSF}/${nftNo}.png`} className='picture' alt="profile" style={{ width: size, height: size, paddingLeft: "10px" }} roundedCircle />
                 ))}
             </>
         )
@@ -75,15 +79,8 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
         }
     }, []);
     return (
-        <Container className="mb-5">
-            <Image
-                src={`${baseIPSF}/${nftNoList[0]}.png`}
-                className="picture"
-                alt="profile"
-                // sizes="2"
-                style={{ width: size, height: size }}
-                roundedCircle
-            />
+        <Container fluid className="mb-5">
+            {allProfilePicture()}
             {showName && <p style={{ color: "#FFFFFF" }}> someName</p>}
         </Container>
     );
