@@ -16,7 +16,7 @@ const CreateTableModal: React.FC<CreateTableModalProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const [smallBlind, setSmallBlind] = useState<number>(0);
+  const [blindAmount, setblindAmount] = useState<number>(0);
   const [minBuyIn, setMinBuyIn] = useState<number>(0);
   const [maxBuyIn, setMaxBuyIn] = useState<number>(0);
   const [buyIn, setBuyIn] = useState<number>(0);
@@ -45,7 +45,7 @@ const CreateTableModal: React.FC<CreateTableModalProps> = ({
     try {
       console.log("contract:", contract);
       const tx = await contract.createGame(
-        smallBlind,
+        blindAmount,
         minBuyIn,
         maxBuyIn,
       );
@@ -66,13 +66,13 @@ const CreateTableModal: React.FC<CreateTableModalProps> = ({
           <Modal.Body>
             <Form>
               <Form.Group>
-                <Form.Label>Small Blind:</Form.Label>
+                <Form.Label>Blind Amount:</Form.Label>
                 <Form.Control
-                  name="smallBlind"
+                  name="Blind Amount"
                   type="number"
-                  value={smallBlind}
-                  onChange={(e) => setSmallBlind(Number(e.target.value))}
-                  placeholder="Small Blind"
+                  value={blindAmount}
+                  onChange={(e) => setblindAmount(Number(e.target.value))}
+                  placeholder="Blind Amount"
                 />
               </Form.Group>
               <Form.Group>

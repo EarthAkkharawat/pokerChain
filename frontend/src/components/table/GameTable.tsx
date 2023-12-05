@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Col, Container, Row } from "react-bootstrap";
+import { ethers } from 'ethers';
+
 import SelfPlayer from "../self-player/SelfPlayer";
 import OtherPlayer from "../other-player/OtherPlayer";
 import CardRow from "../card/CardRow";
@@ -36,27 +38,38 @@ const Table: React.FC = () => {
     // console.log("contract:", contract);
   }, []); 
 
+
   useEffect(() => {
-    const fetchGameDetails = async () => {
-        if (contract) {
-            const gameDetails = await contract.getGameBasicDetails(gameId);
-            setGameStatus(gameDetails.status);
-        }
-    };
-    fetchGameDetails();
+    if (contract && gameId >= 0) {
+        const listener = (gameId: number, communityCards: number[]) => {
+            setTableCards(communityCards);
+        };
+
+        contract.on('GameStateChanged', listener);
+
+        // Cleanup function
+        return () => {
+            contract.off('GameStateChanged', listener);
+        };
+    }
   }, [contract, gameId]);
 
-  useEffect(() => {
-    console.log("contract:", contract);
-    console.log("gameId:", gameId);
-    console.log("gameStatus:", gameStatus);
-  }, [contract, gameId, gameStatus]); 
+  // useEffect(() => {
+  //   const fetchGameDetails = async () => {
+  //       if (contract) {
+  //           const gameDetails = await contract.getGameBasicDetails(gameId);
+  //           setGameStatus(gameDetails.status);
+  //       }
+  //   };
+  //   fetchGameDetails();
+  // }, [contract, gameId]);
 
-  // useState(() => {
-  //   const fetchData = async() => {
+  // useEffect(() => {
+  //   console.log("contract:", contract);
+  //   console.log("gameId:", gameId);
+  //   console.log("gameStatus:", gameStatus);
+  // }, [contract, gameId, gameStatus]); 
 
-  //   }
-  // })
 
   const startGame = async (seed: Number) => {
       if (!contract) return;
@@ -70,6 +83,33 @@ const Table: React.FC = () => {
       } catch (error) {
         alert(error);
       }
+  };
+
+  const callAction = async () => {
+    if (!contract) return;
+    try {
+
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  const raiseAction = async (raiseAmount: Number) => {
+    if (!contract) return;
+    try {
+
+    } catch (error) {
+      alert(error);
+    }
+  }
+
+  const foldAction = async () => {
+    if (!contract) return;
+    try {
+
+    } catch (error) {
+      alert(error);
+    }
   };
 
   return (
