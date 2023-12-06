@@ -48,36 +48,30 @@ const Table: React.FC = () => {
   useEffect(() => {
     if (contract && gameId >= 0) {
       const handleOpenTableCard = (_gameId: number, communityCards: number[]) => {
-        if (gameId === _gameId ) { 
-          setTableCards(communityCards);
-          fetchAndSetPlayerCards();
-        }
+        setTableCards(communityCards);
+        fetchAndSetPlayerCards();
         console.log(_gameId ,"communityCards updated ->", communityCards)
       };
       const handleNextPlayerAction = (_gameId: number, player: string, actionType: number, amount: number, nextPlayer: string) => {
         // Handle Next Player Action
         // 1 = CALL, 2 = RAISE, 3 = CHECK, 4 = FOLD, 5 = IDLE, 6 = ALLIN
-        if (gameId === _gameId ) {
-          const _gameStatusText = (actionType === 1 ? "CALL" : actionType === 2 ? "RAISE" : actionType === 3 ? "CHECK" : actionType === 4 ? "FOLD" : actionType === 5 ? "IDLE" : actionType === 6 ? "ALLIN" : "") + " with amount " + amount.toString();
-          setGameStatusText(_gameStatusText);
-          setCurrentPlayer(player);
-          setNextPlayer(nextPlayer);
-        }
+        const _gameStatusText = (actionType === 1 ? "CALL" : actionType === 2 ? "RAISE" : actionType === 3 ? "CHECK" : actionType === 4 ? "FOLD" : actionType === 5 ? "IDLE" : actionType === 6 ? "ALLIN" : "") + " with amount " + amount.toString();
+        setGameStatusText(_gameStatusText);
+        setCurrentPlayer(player);
+        setNextPlayer(nextPlayer);
         console.log(_gameId ,"turn changed -> current player", player, "next player", nextPlayer);
       };
 
       const handleGameEnded = (_gameId: number, winner: string, winnings: number) => {
         // Handle Game Ended
         // some logic here
-        if (gameId === _gameId ) { alert("Game ended\nwinner: " + winner + "\nwinnings: " + winnings); }
+        alert("Game ended\nwinner: " + winner + "\nwinnings: " + winnings);
         console.log(_gameId ,"Game ended -> winner:", winner, "winnings:", winnings);
       };
 
       const handlePotUpdated = (_gameId: number, newPotSize: number) => {
         // Handle Pot Updated
-        if (gameId === _gameId ) { 
-          setPotSize(newPotSize.toString()); 
-        }
+        setPotSize(newPotSize.toString()); 
         console.log(_gameId ,"newPotSize ->", newPotSize);
       };
 
@@ -132,17 +126,17 @@ const Table: React.FC = () => {
       alert(error);
     }
   };
-  // useEffect(() => {
-  //   const fetchPlayerCards = async () => {
-  //     console.log("fetchPlayerCards", contract)
-  //     if (contract) {
-  //       const playerCard = await contract.getMyHand(gameId);
-  //       console.log("playerCards ->", playerCards);
-  //       setPlayerCards(playerCard);
-  //     }
-  //   }
-  //   fetchPlayerCards();
-  // }, [gameId, contract, playerCards])
+  useEffect(() => {
+    const fetchPlayerCards = async () => {
+      // console.log("fetchPlayerCards", contract)
+      if (contract) {
+        const playerCard = await contract.getMyHand(gameId);
+        // console.log("playerCards ->", playerCards);
+        setPlayerCards(playerCard);
+      }
+    }
+    fetchPlayerCards();
+  }, [gameId, contract])
 
   const check = async () => {
     if (contract) {
