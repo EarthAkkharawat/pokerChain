@@ -212,7 +212,7 @@ const Table: React.FC = () => {
   const river = async () => {
     if (contract) {
       try {
-        await contract.river(gameId);
+        await contract.River(gameId);
         alert("River card revealed");
       }
       catch (error) {
