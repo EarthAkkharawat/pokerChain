@@ -8,7 +8,7 @@
 ## Description
 Our project aims to revolutionize online poker by introducing a blockchain-powered platform, addressing the trust and transparency issues prevalent in traditional centralized poker systems. This innovative approach utilizes smart contracts for guaranteed fair play and transparent card distribution. Every game detail is indelibly recorded on the blockchain, ensuring permanent, transparent records and robust anti-collusion measures. By leveraging the strengths of blockchain technology, such as its immutability and decentralization, our platform provides a secure, trustless gaming environment, superior to conventional online poker platforms.
 
-Note: This poker platform has been designed with modified rules and is primarily for educational purposes. It focuses on demonstrating the functionalities and potential of blockchain technology in online gaming. There might be a small occasional errors or mistakes in the system's operation.
+Note: The design of this poker platform incorporates adjusted rules, intended mainly for educational use. Its primary aim is to showcase the capabilities and applications of blockchain technology in the realm of online gaming. While integrating the smart contract with the user interface, minor errors or glitches may occasionally occur. Nonetheless, the smart contract underpinning the game's logic is fully operational and serves to demonstrate its functional aspects.
 
 
 ## Details
