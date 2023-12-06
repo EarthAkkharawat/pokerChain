@@ -5,10 +5,6 @@
 - 6330585221 Akkharawat Burachokviwat
 - 6331324021 Punya Gunawardana
 
-## Documentation
+## Details (Documentation, Deployment, How to run)
 - [Solidity Smart Contracts](contracts/README.md)
-- Frontend
-## Description
-Todo
-## Components
-- Todo
+- [Frontend](frontend/README.md)
