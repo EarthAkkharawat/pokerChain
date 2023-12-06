@@ -6,5 +6,6 @@
 - 6331324021 Punya Gunawardana
 
 ## Details (Documentation, Deployment, How to run)
-- [Solidity Smart Contracts](contracts/README.md)
+- [Poker Smart Contracts](contracts/README.md)
+- [NFT Smart Contracts](contracts_nft/README.md)
 - [Frontend](frontend/README.md)
