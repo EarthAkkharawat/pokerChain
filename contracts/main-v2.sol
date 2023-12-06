@@ -21,10 +21,6 @@ contract PokerChain {
         uint24 pot;
         uint8 numPlayerInGame;
         uint24 blindAmount;
-        // uint24 smallBlindAmount;
-        // uint24 bigBlindAmount;
-        // uint8 smallBlindPlayer;
-        // uint8 bigBlindPlayer;
         uint24 minBuyIn;
         uint24 maxBuyIn;
         uint24 currentBet;
@@ -57,7 +53,6 @@ contract PokerChain {
     address private owner;
     uint24 private commission; // pay to our system
     uint8 private nextGameId;
-    // uint8 private bigBlindPlayerId;
     uint8 private numGames;
     uint8 private constant TOTAL_CARDS = 52;
 
@@ -88,17 +83,11 @@ contract PokerChain {
         commission = _commission;
     }
 
-    // function deleteGame(uint8 gameId) public pure returns (uint8 game) {
-    //     // delete games[gameId];
-    //     return false;
-    // }
-
     /*
         Function to create new game
         @param : smallBlind, minBuyIn, maxBuyIn
     */
     function createGame(
-        // uint24 smallBlind,
         uint24 blindAmount,
         uint24 minBuyIn,
         uint24 maxBuyIn
@@ -113,11 +102,6 @@ contract PokerChain {
         Game storage newGame = games[gameId];
         newGame.owner = msg.sender;
         newGame.blindAmount = blindAmount;
-        // newGame.smallBlindAmount = smallBlind;
-        // newGame.bigBlindAmount = smallBlind * 2;
-        // bigBlindPlayerId = 0;
-        // newGame.smallBlindPlayer = 0;
-        // newGame.bigBlindPlayer = 1;
         newGame.minBuyIn = minBuyIn;
         newGame.maxBuyIn = maxBuyIn;
         newGame.currentPlayerIndex = 0;
@@ -235,17 +219,6 @@ contract PokerChain {
             game.communityCards.push(card);
         }
 
-        // Big blind and Small blind initial bet
-        // address bigBlindPlayer = game.players[game.bigBlindPlayer];
-        // address smallBlindPlayer = game.players[game.smallBlindPlayer];
-        // require(
-        //     game.playerChips[bigBlindPlayer] >= game.bigBlindAmount,
-        //     "Insufficient balance"
-        // );
-        // require(
-        //     game.playerChips[smallBlindPlayer] >= game.smallBlindAmount,
-        //     "Insufficient balance"
-        // );
         game.currentBet = 0;
         for (uint8 i = 0; i < MAX_PLAYERS; i++) {
             uint24 chips = game.playerChips[game.players[i]];
@@ -281,20 +254,6 @@ contract PokerChain {
         );
         emit PotUpdated(gameId, game.pot);
         game.currentPlayerIndex = nextPlayerIndex;
-        // game.pot += game.bigBlindAmount * 2;
-        // game.playerChips[bigBlindPlayer] -= game.bigBlindAmount;
-        // game.playerChips[smallBlindPlayer] -= game.bigBlindAmount;
-        // game.currentBet = game.bigBlindAmount;
-        // game.currentPlayerIndex = game.bigBlindPlayer + 1;
-        // game.playerBetAmounts[game.bigBlindPlayer] = game.bigBlindAmount;
-        // game.playerActions[game.bigBlindPlayer] = PlayerAction.Raise;
-        // game.isPlayerTakeTurn[game.bigBlindPlayer] = 1;
-        // game.playerBetAmounts[game.smallBlindPlayer] = game.bigBlindAmount;
-        // game.playerActions[game.smallBlindPlayer] = PlayerAction.Raise;
-        // game.isPlayerTakeTurn[game.smallBlindPlayer] = 1;
-
-        // game.bigBlindPlayer = (game.bigBlindPlayer + 1) % MAX_PLAYERS;
-        // game.smallBlindPlayer = (game.smallBlindPlayer + 1) % MAX_PLAYERS;
     }
 
     function _min(uint24 a, uint24 b) internal pure returns (uint24) {
@@ -760,17 +719,7 @@ contract PokerChain {
     }
 
     function _resetGame(uint8 gameId) internal {
-        // Game storage game = games[gameId];
         delete games[gameId];
-        // bigBlindPlayerId = 0;
-        // Remove gameId from gameIds array
-        // for (uint8 i = 0; i < game.length; i++) {
-        //     if (game[i] == gameId) {
-        //         game[i] = game[game.length - 1];
-        //         game.pop();
-        //         break;
-        //     }
-        // }
     }
 
     function _resetPlayerCards(uint8 gameId) internal {
@@ -796,8 +745,6 @@ contract PokerChain {
             GameStatus status,
             uint8 verifiedPlayerCount,
             uint8[] memory
-            // uint8 bigBlindPlayer,
-            // uint8 smallBlindPlayer
         )
     {
         Game storage game = games[gameId];
@@ -808,8 +755,6 @@ contract PokerChain {
             game.status,
             game.verifiedPlayerCount,
             game.isPlayerInGame
-            // game.bigBlindPlayer,
-            // game.smallBlindPlayer
         );
     }
 
