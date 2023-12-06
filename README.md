@@ -12,18 +12,19 @@ Note: The design of this poker platform incorporates adjusted rules, intended ma
 
 
 ## Details
-- [Poker Smart Contracts](contracts/README.md)
-- [NFT Smart Contracts](contracts_nft/README.md)
-- [Frontend](frontend/README.md)
+- [Poker Smart Contracts](contracts/README.md): All the poker game logic is managed on this component. Inside this component, there will be [main-v2.sol](contracts/main-v2.sol) which manage all game logic and [utils.sol](contracts/utils.sol) which is a library that manage all card logic (check winning hand, determine winning pattern etc.)
+- [NFT Smart Contracts](contracts_nft/README.md): This component manage NFTs within the application.
+- [Frontend](frontend/README.md): The GUI to interact and with the poker game logic and play is managed within this component.
 
 ## Deployment & How to run
 **Game Logic**
-- Upload both [main-v2.sol](contracts/main-v2.sol) and [utils.sol](contracts/utils.sol) to Remix IDE, compile with enable optimization option and then deploy.
-- Put contract address into the [following line in contract.tsx](frontend/src/utils/contracts.tsx#L6) and add [contract's ABI](frontend/src/utils/pokerContractABI.json) to the same folder.
+- Upload both [main-v2.sol](contracts/main-v2.sol) and [utils.sol](contracts/utils.sol) to Remix IDE, compile with enable optimization option as on and then deploy the main-v2.sol contract.
+- Put the deployed contract address into the [following line in contract.tsx](frontend/src/utils/contracts.tsx#L6) and add [contract's ABI](frontend/src/utils/pokerContractABI.json) to the same folder.
+- This component can be deployed alone on Remix IDE to easily test the functionalities of this Poker game.
 
 **NFTs**
 - Upload [nft.sol](contracts_nft/nft.sol) to Remix IDE then compile and deploy.
-- Put contract address into the [following line in contract.tsx](frontend/src/utils/contracts.tsx#L7) and add [contract's ABI](frontend/src/utils/nftContractABI.json) to the same folder.
+- Put the deployed contract address into the [following line in contract.tsx](frontend/src/utils/contracts.tsx#L7) and add [contract's ABI](frontend/src/utils/nftContractABI.json) to the same folder.
 
 **Frontend**
 - run the following command in order
@@ -32,4 +33,4 @@ Note: The design of this poker platform incorporates adjusted rules, intended ma
 > npm i
 > npm start
 ```
-- Then go to [http://localhost:3000](http://localhost:3000) to play with our Poker game!
+- Then go to [http://localhost:3000](http://localhost:3000) to play with our Poker game.
