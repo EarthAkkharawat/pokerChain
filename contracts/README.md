@@ -5,274 +5,266 @@
 ## Smart Contract Overview
 `PokerChain` is a Solidity smart contract designed for running a decentralized Texas Hold'em poker game on the Ethereum blockchain. It features functionalities for game creation, player actions during the game, and managing poker rounds.
 
-## Contract Fields
-1. `MAX_PLAYERS`: The maximum number of players allowed in a game.
-2. `Game`: Struct that represents a game, containing information about players, cards, bets, game status, etc.
-3. `GameStatus`: Enum representing different states of a game.
-4. `PlayerAction`: Enum representing different actions a player can take during a game.
-5. `owner`: Address of the contract owner.
-6. `commission`: Commission paid to the system.
-7. `nextGameId`: ID for the next game.
-8. `bigBlindPlayerId`: ID of the player who is the big blind.
-9. `numGames`: Number of games created.
-10. `TOTAL_CARDS`: Total number of cards in a deck.
-11. `games`: Mapping from game IDs to games.
+## Constants
+- `MAX_PLAYERS`: (uint8) The maximum number of players in a game.
+- `TOTAL_CARDS`: (uint8) Total number of cards in a deck.
 
-## Enum
-
+## Enums
 ### GameStatus
-- `Create`: The initial state of the game when it is created.
-- `AwaitingToStart`: The game is waiting for enough players to join.
-- `PreFlop`: The stage where players receive their initial two cards.
-- `Flop`: The stage where the first three community cards are revealed.
-- `Turn`: The stage where the fourth community card is revealed.
-- `River`: The stage where the fifth and final community card is revealed.
-- `Finish`: The game is finished, and the winner is determined.
-- `Clear`: The game is cleared and ready for a new round or game.
+Represents different states of a poker game.
+- `Create`
+- `AwaitingToStart`
+- `PreFlop`
+- `Flop`
+- `Turn`
+- `River`
+- `Finish`
 
 ### PlayerAction
-- `Call`: A player action to match the current highest bet.
-- `Raise`: A player action to increase the current highest bet.
-- `Check`: A player action to pass the turn without betting, only available if no bet has been made in the current round.
-- `Fold`: A player action to give up on the current hand and forfeit any bets already made.
-- `Idle`: A default state indicating the player has not taken any action yet.
-- `AllIn`: A player action to bet all remaining chips.
+Possible actions a player can take during a game.
+- `Call`
+- `Raise`
+- `Check`
+- `Fold`
+- `Idle`
+- `AllIn`
 
 ## Structs
-
 ### Game
-- `owner`: Address of the game creator.
-- `players`: Dynamic array of player addresses participating in the game.
-- `playerChips`: Mapping from player address to their chip count.
-- `playerCards`: Mapping from player address to an array of their cards.
-- `playerActions`: Dynamic array of actions taken by each player.
-- `isPlayerInGame`: Dynamic array indicating whether a player is still active in the game.
-- `isPlayerTakeTurn`: Dynamic array indicating whether a player is already done an action in their turn.
-- `isPlayerFolded;`: Dynamic array indicating whether a player is folded.
-- `isPlayerAllIn`: Dynamic array indicating whether a player has gone all-in.
-- `playerBetAmounts`: Dynamic array of the amount each player has bet in the current round.
-- `deck`: Dynamic array representing the deck of cards.
-- `communityCards`: Dynamic array of cards that are in play for all players.
-- `pot`: Total amount of chips bet in the current round.
-- `numPlayerInGame`: Count of active players in the game.
-- `smallBlindAmount`: Amount of the small blind bet.
-- `bigBlindAmount`: Amount of the big blind bet.
-- `smallBlindPlayer`: Index of the player assigned as the small blind.
-- `bigBlindPlayer`: Index of the player assigned as the big blind.
-- `minBuyIn`: Minimum amount required to join the game.
-- `maxBuyIn`: Maximum amount allowed to join the game.
-- `currentBet`: The current highest bet that players must match or exceed.
-- `currentPlayerIndex`: Index of the current player to take action.
-- `verifiedPlayerCount`: Count of players who have verified their participation.
-- `gameCount`: The number of games played.
-- `status`: Current status of the game, as defined in `GameStatus`.
+Represents a single poker game with attributes like owner, players, player states, deck, community cards, pot, game status, etc.
+
+## State Variables
+- `games`: Mapping of game IDs to `Game` structs.
+- `owner`: Address of the contract owner.
+- `commission`: Commission fee for the contract owner.
+- `nextGameId`: ID for the next game to be created.
+- `numGames`: Total number of games created.
 
 ## Modifiers
-1. `onlyOwner`: Ensures that only the contract owner can call a function.
-2. `onlyState`: Ensures that a function is called only when the game is in a specific state.
-3. `validGameId`: Ensures that the provided game ID is valid.
+### onlyOwner
+Restricts function access to the contract owner.
+
+### onlyState
+Ensures the game is in a specific state.
+- **Parameters**:
+  - `gameId` (`uint8`): ID of the game.
+  - `state` (`GameStatus`): Desired state of the game.
+
+### validGameId
+Validates a game ID.
+- **Parameters**:
+  - `gameId` (`uint8`): ID of the game to validate.
+
+## Events
+- `NextPlayerAction(gameId, player, actionType, amount, nextPlayer)`
+- `GameStateChanged(gameId, communityCards)`
+- `GameEnded(gameId, winner, winnings)`
+- `PotUpdated(gameId, newPotSize)`
+
+## Constructor
+### PokerChain
+- **Parameters**:
+  - `_commission` (`uint24`): Commission rate for the contract.
+- **Functionality**: Sets the contract owner and commission rate.
 
 ## Functions
-
-### Constructor
-- **Parameters**: 
-  - `_commission` (`uint256`): The commission amount for the contract (All players need to pay when join game).
-- **Functionality**: Sets the contract owner and commission amount.
 
 ### createGame
 - **Modifiers**: require(minBuyIn <= maxBuyIn);
 - **Parameters**: 
-  - `smallBlind` (`uint256`): The amount of the small blind.
-  - `minBuyIn` (`uint256`): Minimum buy-in amount.
-  - `maxBuyIn` (`uint256`): Maximum buy-in amount.
-- **Returns**: `uint256` - The ID of the created game.
-- **Functionality**: Creates a new game with specified parameters.
-
-### joinGame
-- **Modifiers**: 
-  - `onlyState`: Requires the game to be in the `Create` state.
-  - `validGameId`: Validates the game ID.
-- **Parameters**: 
-  - `gameId` (`uint256`): The ID of the game to join.
-- **Functionality**: Allows a player to join an existing game.
+  - `blindAmount` (`uint24`): The blind amount for the game.
+  - `minBuyIn` (`uint24`): Minimum buy-in amount.
+  - `maxBuyIn` (`uint24`): Maximum buy-in amount.
+- **Returns**: `uint8` - The ID of the created game.
+- **Functionality**: Initializes a new game with specified parameters.
 
 ### _joinGame
-- **Modifiers**: N/A
-- **Parameters**: 
-  - `gameId` (`uint256`): The ID of the game to join.
-- **Functionality**: Internal function to handle player joining logic.
+- **Modifiers**: None
+- **Parameters**:
+  - `gameId` (`uint8`): ID of the game to join.
+- **Functionality**: Internal function to manage the logic of joining a game. Validates the joining conditions like the amount, player limit, and player address.
 
 ### _transfer
-- **Modifiers**: N/A
-- **Parameters**: 
-  - `to` (`address`): Address to transfer ether to.
-  - `amount` (`uint256`): Amount of ether to transfer.
-- **Functionality**: Internal function to transfer ether.
+- **Modifiers**: None
+- **Parameters**:
+  - `to` (`address`): The address to transfer ether to.
+  - `amount` (`uint24`): Amount of ether to transfer.
+- **Functionality**: Internal function to handle ether transfers. It ensures the transfer is successful and reverts if not.
 
 ### drawCard
-- **Modifiers**: 
-  - `validGameId`: Validates the game ID.
+- **Modifiers**: validGameId(gameId)
 - **Parameters**:
-  - `gameId` (`uint256`): The ID of the game.
-  - `seed` (`uint256`): A seed for randomness.
+  - `gameId` (`uint8`): ID of the game.
+  - `seed` (`uint24`): Seed for randomization.
 - **Returns**: `uint8` - The drawn card.
-- **Functionality**: Draws a card from the game deck using a pseudo-random index.
+- **Functionality**: Draws a card from the game's deck based on the provided seed and randomization logic.
 
 ### startGame
-- **Modifiers**:
-  - `onlyState`: Requires the game to be in the `AwaitingToStart` state.
-  - `validGameId`: Validates the game ID.
+- **Modifiers**: onlyState(gameId, GameStatus.AwaitingToStart), validGameId(gameId)
 - **Parameters**:
-  - `gameId` (`uint8`): The ID of the game.
-  - `seed` (`uint256`): A seed for randomness.
-- **Functionality**: Starts the game and deals cards to players. It also sets the initial betting round.
+  - `gameId` (`uint8`): ID of the game to start.
+  - `seed` (`uint24`): Seed for randomization.
+- **Functionality**: Starts the game, transitioning it to the PreFlop state. Deals cards to players and sets up the game for play.
 
 ### _min
-- **Modifiers**: N/A
+- **Modifiers**: None
 - **Parameters**:
-  - `a` (`uint256`): First number.
-  - `b` (`uint256`): Second number.
-- **Returns**: `uint256` - The smaller of the two numbers.
-- **Functionality**: Internal function to determine the smaller of two numbers.
+  - `a` (`uint24`): First value.
+  - `b` (`uint24`): Second value.
+- **Returns**: `uint24` - The minimum of the two values.
+- **Functionality**: Internal function to determine the minimum of two values.
+
+### _max
+- **Modifiers**: None
+- **Parameters**:
+  - `a` (`uint24`): First value.
+  - `b` (`uint24`): Second value.
+- **Returns**: `uint24` - The maximum of the two values.
+- **Functionality**: Internal function to determine the maximum of two values.
 
 ### callAction
-- **Modifiers**:
-  - `validGameId`: Validates the game ID.
+- **Modifiers**: validGameId(gameId)
 - **Parameters**:
-  - `gameId` (`uint8`): The ID of the game.
-- **Functionality**: Allows a player to call during their turn in the betting round.
+  - `gameId` (`uint8`): ID of the game where the action takes place.
+- **Functionality**: Enables a player to call the current bet. Validates if the action is permissible under the current game state.
 
 ### raiseAction
-- **Modifiers**:
-  - `validGameId`: Validates the game ID.
+- **Modifiers**: validGameId(gameId)
 - **Parameters**:
-  - `gameId` (`uint8`): The ID of the game.
-  - `raiseAmount` (`uint256`): The amount by which the player raises.
-- **Functionality**: Allows a player to raise their bet during their turn in the betting round.
+  - `gameId` (`uint8`): ID of the game where the action takes place.
+  - `raiseAmount` (`uint24`): Amount by which the player wishes to raise the bet.
+- **Functionality**: Allows a player to raise the bet in the game. Checks if the raise is valid and the player has sufficient balance.
 
 ### checkAction
-- **Modifiers**:
-  - `validGameId`: Validates the game ID.
+- **Modifiers**: validGameId(gameId)
 - **Parameters**:
-  - `gameId` (`uint8`): The ID of the game.
-- **Functionality**: Allows a player to check during their turn in the betting round.
+  - `gameId` (`uint8`): ID of the game where the action takes place.
+- **Functionality**: Enables a player to check, passing the action to the next player without betting. Validates the action based on the current bet.
 
 ### foldAction
-- **Modifiers**:
-  - `validGameId`: Validates the game ID.
+- **Modifiers**: validGameId(gameId)
 - **Parameters**:
-  - `gameId` (`uint8`): The ID of the game.
-- **Functionality**: Allows a player to fold during their turn in the betting round.
+  - `gameId` (`uint8`): ID of the game where the action takes place.
+- **Functionality**: Allows a player to fold their hand, forfeiting their position in the current round of the game.
 
 ### _isValidAction
-- **Modifiers**: N/A
-- **Parameters**:
-  - `game` (`Game storage`): The game in question.
-- **Returns**: `bool` - Whether the action is valid.
-- **Functionality**: Internal function to check if a player's action is valid. It verifies if the game is currently in one of the main betting rounds: PreFlop, Flop, Turn, or River. Secondly, the condition checks if the current player (identified by game.currentPlayerIndex) has not folded their hand. Thirdly, it ensures that the action is being taken by the correct player, matching the msg.sender (the address calling the function) with the address of the current player in the game. Lastly, it confirms that the player is still in the game, as indicated by their status in the game.isPlayerInGame array.
+- **Modifiers**: None
+- **Parameters**: 
+  - `game` (`Game storage`): The game struct instance.
+- **Returns**: `bool` - Indicates whether the action is valid.
+- **Functionality**: Internal function that checks if a player's action is valid based on the game state, player's status, and turn order.
 
 ### getIsValidAction
-- **Modifiers**: N/A
-- **Parameters**:
-  - `gameId` (`uint8`): The ID of the game.
-- **Returns**: Tuple of four `bool` values representing valid state, action, player, and active player status.
-- **Functionality**: Provides information about whether a player's action is valid in the current game state (get info from _isValidAction).
+- **Modifiers**: None
+- **Parameters**: 
+  - `gameId` (`uint8`): ID of the game.
+- **Returns**: Multiple return values indicating various aspects of action validity (boolean values).
+- **Functionality**: Provides a comprehensive check of the action's validity, including the state, player, and turn conditions.
 
 ### _nextPlayer
-- **Modifiers**: N/A
+- **Modifiers**: None
 - **Parameters**:
-  - `game` (`Game storage`): The game in question.
-- **Functionality**: Internal function to move the turn to the next player in the game.
+  - `game` (`Game storage`): The game struct instance.
+- **Functionality**: Internal function to update the `currentPlayerIndex` to the next active player in the game, skipping folded and all-in players.
 
 ### flop
-- **Modifiers**:
-  - `onlyState`: Requires the game to be in the `PreFlop` state.
+- **Modifiers**: onlyState(gameId, GameStatus.PreFlop)
 - **Parameters**:
-  - `gameId` (`uint8`): The ID of the game.
-- **Returns**: Tuple of three `uint256` values representing the first, second, and third community cards.
-- **Functionality**: Moves the game to the `Flop` state and reveals the first three community cards.
+  - `gameId` (`uint8`): ID of the game.
+- **Returns**: The first three community cards (`uint8`).
+- **Functionality**: Transitions the game to the Flop state and reveals the first three community cards.
 
 ### turn
-- **Modifiers**:
-  - `onlyState`: Requires the game to be in the `Flop` state.
+- **Modifiers**: onlyState(gameId, GameStatus.Flop)
 - **Parameters**:
-  - `gameId` (`uint8`): The ID of the game.
-- **Returns**: Tuple of four `uint256` values representing the first four community cards.
-- **Functionality**: Moves the game to the `Turn` state and reveals the fourth community card.
+  - `gameId` (`uint8`): ID of the game.
+- **Returns**: The first four community cards (`uint8`).
+- **Functionality**: Moves the game to the Turn state and reveals the fourth community card.
 
 ### River
-- **Modifiers**:
-  - `onlyState`: Requires the game to be in the `Turn` state.
+- **Modifiers**: onlyState(gameId, GameStatus.Turn)
 - **Parameters**:
-  - `gameId` (`uint8`): The ID of the game.
-- **Returns**: Tuple of five `uint256` values representing all the community cards.
-- **Functionality**: Moves the game to the `River` state and reveals the fifth community card.
+  - `gameId` (`uint8`): ID of the game.
+- **Returns**: All five community cards (`uint8`).
+- **Functionality**: Advances the game to the River state, revealing the final (fifth) community card.
 
 ### showdown
-- **Modifiers**:
-  - `onlyState`: Requires the game to be in the `River` state.
+- **Modifiers**: onlyState(gameId, GameStatus.River)
 - **Parameters**:
-  - `gameId` (`uint8`): The ID of the game.
-- **Returns**: Tuple of three arrays: an array of arrays of `uint8` representing the hands of players, an array of `uint8` representing the best hand combinations, and an array of `uint8` representing the indices of the winning players.
-- **Functionality**: Determines the winner(s) of the game based on the best hand and distributes the pot accordingly.
+  - `gameId` (`uint8`): ID of the game.
+- **Returns**: Arrays of player hands, best hands, and winner indices.
+- **Functionality**: Determines the winner(s) of the game based on the best poker hands. Calculates and distributes the pot accordingly.
 
 ### clear
-- **Modifiers**:
-  - `onlyState`: Requires the game to be in the `Finish` state.
+- **Modifiers**: onlyState(gameId, GameStatus.Finish)
 - **Parameters**:
-  - `gameId` (`uint8`): The ID of the game.
-- **Functionality**: Resets the game state for a new round or game. Handles distribution of remaining chips and resetting player statuses.
+  - `gameId` (`uint8`): ID of the game.
+- **Functionality**: Resets the game state for a new round or completely ends the game if certain conditions are met.
 
 ### _resetRound
-- **Modifiers**: N/A
+- **Modifiers**: None
 - **Parameters**:
-  - `gameId` (`uint8`): The ID of the game.
-- **Functionality**: Internal function to reset the game state for a new round, including resetting bets, player actions, and community cards.
+  - `gameId` (`uint8`): ID of the game.
+- **Functionality**: Internal function to reset the game state for a new round, maintaining the same players.
 
 ### _resetGame
-- **Modifiers**: N/A
+- **Modifiers**: None
 - **Parameters**:
-  - `gameId` (`uint8`): The ID of the game.
-- **Functionality**: Internal function to completely reset and delete the game data.
+  - `gameId` (`uint8`): ID of the game.
+- **Functionality**: Internal function to reset and clear all data of a finished game.
 
 ### _resetPlayerCards
-- **Modifiers**: N/A
+- **Modifiers**: None
 - **Parameters**:
-  - `gameId` (`uint8`): The ID of the game.
-- **Functionality**: Internal function to reset the cards of each player.
+  - `gameId` (`uint8`): ID of the game.
+- **Functionality**: Internal function to reset the cards of each player in the game.
 
 ### getGameBasicDetails
-- **Modifiers**: N/A
+- **Modifiers**: None
 - **Parameters**:
-  - `gameId` (`uint256`): The ID of the game.
-- **Returns**: Tuple containing the game's owner address, pot size, game status, verified player count, and an array of player statuses.
-- **Functionality**: Provides basic details about the game, such as the owner, current pot, and the number of verified players.
+  - `gameId` (`uint8`): ID of the game.
+- **Returns**: Basic details of the game including owner, blind amount, pot, status, and player count.
+- **Functionality**: Retrieves basic details about a specific game.
 
-### getHand
-- **Modifiers**:
-  - `onlyState`: Requires the game to be in the `PreFlop` state.
+### getMyHand
+- **Modifiers**: None
 - **Parameters**:
-  - `gameId` (`uint256`): The ID of the game.
-- **Returns**: Tuple of two `uint8` values representing the player's two cards.
-- **Functionality**: Provides the player's hand for the current game.
+  - `gameId` (`uint8`): ID of the game.
+- **Returns**: The two cards in the player's hand.
+- **Functionality**: Returns the hand of the player calling this function in the specified game.
 
 ### getPlayers
-- **Modifiers**: N/A
+- **Modifiers**: None
 - **Parameters**:
-  - `gameId` (`uint256`): The ID of the game.
-- **Returns**: `address[]` - Array of player addresses.
-- **Functionality**: Returns a list of players participating in the specified game.
+  - `gameId` (`uint8`): ID of the game.
+- **Returns**: An array of addresses representing the players in the game.
+- **Functionality**: Retrieves the list of players participating in a specific game.
+
+### getMyBalance
+- **Modifiers**: None
+- **Parameters**:
+  - `gameId` (`uint8`): ID of the game.
+- **Returns**: The balance of the player calling the function.
+- **Functionality**: Returns the chip balance of the player calling this function in the specified game.
 
 ### getNumGames
-- **Modifiers**: N/A
-- **Functionality**: Returns the total number of games created (`uint8`).
+- **Modifiers**: None
+- **Returns**: The number of games created (`uint8`).
+- **Functionality**: Returns the total number of games created since the contract deployment.
 
 ### getRoundDetails
-- **Modifiers**: N/A
+- **Modifiers**: None
 - **Parameters**:
-  - `gameId` (`uint256`): The ID of the game.
-- **Returns**: Tuple containing arrays of player bet amounts and actions, the current pot, current bet, and the index of the current player.
-- **Functionality**: Provides detailed information about the current round in the specified game.
+  - `gameId` (`uint8`): ID of the game.
+- **Returns**: Detailed information about the current round of the specified game.
+- **Functionality**: Provides detailed round information including player bets, actions, and game state.
+
+### getCardsDetail
+- **Modifiers**: None
+- **Parameters**:
+  - `gameId` (`uint8`): ID of the game.
+- **Returns**: Details of the cards in the game including player hands, community cards, deck length, best hands, and winner indices.
+- **Functionality**: Provides a comprehensive view of all card-related details in the specified game.
 
 [...End of Documentation...]
 
