@@ -28,10 +28,11 @@ const Table: React.FC = () => {
   const [gameId, setGameId] = useState<number>(-1);
   const [gameStatus, setGameStatus] = useState<number>(1);
   const [tableCards, setTableCards] = useState<number[]>([255, 255, 255, 255, 255]);
-  const [potSize, setPotSize] = useState<number>(0);
-  const [currentPlayer, setCurrentPlayer] = useState<string>("");
-  const [nextPlayer, setNextPlayer] = useState<string>("");
+  const [potSize, setPotSize] = useState<string>("0");
+  const [currentPlayer, setCurrentPlayer] = useState<string>("None");
+  const [nextPlayer, setNextPlayer] = useState<string>("None");
   const [playerCards, setPlayerCards] = useState<number[]>([255, 255]);
+  const [gameStatusText, setGameStatusText] = useState<string>("None");
 
   useEffect(() => {
     const fetchContract = async () => {
@@ -46,29 +47,47 @@ const Table: React.FC = () => {
 
   useEffect(() => {
     if (contract && gameId >= 0) {
-      const handleOpenTableCard = (gameId: number, communityCards: number[]) => {
-        setTableCards(communityCards);
-        console.log("communityCards updated ->", communityCards)
+      const handleOpenTableCard = (_gameId: number, communityCards: number[]) => {
+        if (gameId === _gameId ) { 
+          setTableCards(communityCards);
+          fetchAndSetPlayerCards();
+        }
+        console.log(_gameId ,"communityCards updated ->", communityCards)
       };
-      const handleNextPlayerAction = (gameId: number, player: string, actionType: number, amount: number, nextPlayer: string) => {
+      const handleNextPlayerAction = (_gameId: number, player: string, actionType: number, amount: number, nextPlayer: string) => {
         // Handle Next Player Action
         // 1 = CALL, 2 = RAISE, 3 = CHECK, 4 = FOLD, 5 = IDLE, 6 = ALLIN
-        setCurrentPlayer(player);
-        setNextPlayer(nextPlayer);
-        console.log("turn changed -> current player", player, "next player", nextPlayer)
+        if (gameId === _gameId ) {
+          const _gameStatusText = (actionType === 1 ? "CALL" : actionType === 2 ? "RAISE" : actionType === 3 ? "CHECK" : actionType === 4 ? "FOLD" : actionType === 5 ? "IDLE" : actionType === 6 ? "ALLIN" : "") + " with amount " + amount.toString();
+          setGameStatusText(_gameStatusText);
+          setCurrentPlayer(player);
+          setNextPlayer(nextPlayer);
+        }
+        console.log(_gameId ,"turn changed -> current player", player, "next player", nextPlayer);
       };
 
-      const handleGameEnded = (gameId: number, winner: string, winnings: number) => {
+      const handleGameEnded = (_gameId: number, winner: string, winnings: number) => {
         // Handle Game Ended
         // some logic here
-        alert("Game ended\nwinner: " + winner + "\nwinnings: " + winnings)
-        console.log("Game ended -> winner:", winner, "winnings:", winnings)
+        if (gameId === _gameId ) { alert("Game ended\nwinner: " + winner + "\nwinnings: " + winnings); }
+        console.log(_gameId ,"Game ended -> winner:", winner, "winnings:", winnings);
       };
 
-      const handlePotUpdated = (gameId: number, newPotSize: number) => {
+      const handlePotUpdated = (_gameId: number, newPotSize: number) => {
         // Handle Pot Updated
-        setPotSize(newPotSize);
-        console.log("newPotSize ->", newPotSize)
+        if (gameId === _gameId ) { 
+          setPotSize(newPotSize.toString()); 
+        }
+        console.log(_gameId ,"newPotSize ->", newPotSize);
+      };
+
+      const fetchAndSetPlayerCards = async () => {
+        try {
+          const playerCard = await contract.getMyHand(gameId);
+          setPlayerCards(playerCard);
+        } catch (error) {
+          console.error("Error fetching player cards:", error);
+        }
       };
 
       contract.on('GameStateChanged', handleOpenTableCard);
@@ -113,17 +132,17 @@ const Table: React.FC = () => {
       alert(error);
     }
   };
-  useEffect(() => {
-    const fetchPlayerCards = async () => {
-      console.log("fetchPlayerCards", contract)
-      if (contract) {
-        const playerCard = await contract.getMyHand(gameId);
-        console.log("playerCards ->", playerCards);
-        setPlayerCards(playerCard);
-      }
-    }
-    fetchPlayerCards();
-  }, [gameId, contract])
+  // useEffect(() => {
+  //   const fetchPlayerCards = async () => {
+  //     console.log("fetchPlayerCards", contract)
+  //     if (contract) {
+  //       const playerCard = await contract.getMyHand(gameId);
+  //       console.log("playerCards ->", playerCards);
+  //       setPlayerCards(playerCard);
+  //     }
+  //   }
+  //   fetchPlayerCards();
+  // }, [gameId, contract, playerCards])
 
   const check = async () => {
     if (contract) {
@@ -183,10 +202,22 @@ const Table: React.FC = () => {
 
       {(gameStatus > 2 || true) && (
         <>
-          <div style={{ display: "flex", flexDirection: "column", backgroundColor: "blue", color: "white" }}>
-            <div>POT SIZE: {potSize}</div>
-            <div>CURRENT ADDRESS: {currentPlayer}</div>
-            <div>NEXT ADDRESS: {nextPlayer}</div>
+          <div style={{
+              display: "flex",
+              flexDirection: "column",
+              backgroundColor: "#003366", // A deeper shade of blue for better contrast
+              color: "white",
+              padding: "15px", // Add some padding for spacing
+              borderRadius: "10px", // Rounded corners
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
+              maxWidth: "300px", // Limiting width for better text readability
+              margin: "20px", // Margin to prevent sticking to the screen edges
+              textAlign: "center" // Center align text
+          }}>
+              <div style={{ marginBottom: "10px" }}>Current pot size: {potSize}</div>
+              <div style={{ marginBottom: "10px" }}>Previous player: {currentPlayer}</div>
+              <div style={{ marginBottom: "10px" }}>Previous action: {gameStatusText}</div>
+              <div>Current player: {nextPlayer}</div>
           </div>
           <Row className="mt-5">
             <Col>
