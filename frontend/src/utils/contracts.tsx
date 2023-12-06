@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import pokerGameABI from './pokerContractABI.json';
 import nftABI from './nftContractABI.json';
 
-const contractAddress = '0x20a22C20ce5bFE6b09E5e20e47ef5AA8d012ea3E';
+const contractAddress = '0xfB8FcA173Fc4aC05211f690Af3FF34eAF2A06F16';
 const nftContractAddress = '0xfe5272414a5d6289d5e505fcf2dcd8a1f47b13ab';
 
 export const getPokerGameContract = async () => {

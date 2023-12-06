@@ -266,6 +266,11 @@ contract PokerChain {
                 game.isPlayerTakeTurn[i] = 0;
             }
         }
+        uint8[] memory tmpTable = new uint8[](5);
+        for (uint8 i = 0; i < 5; i++) {
+            tmpTable[i] = 255;
+        }
+        emit GameStateChanged(gameId, tmpTable);
         uint8 nextPlayerIndex = (game.currentPlayerIndex + 1) % MAX_PLAYERS;
         emit NextPlayerAction(
             gameId,
@@ -307,7 +312,7 @@ contract PokerChain {
     function callAction(uint8 gameId) public validGameId(gameId) {
         Game storage game = games[gameId];
         require(_isValidAction(game), "Invalid call action");
-        uint8 currentPlayerIndex = (game.currentPlayerIndex + 1) % MAX_PLAYERS;
+        uint8 currentPlayerIndex = game.currentPlayerIndex;
         if (game.isPlayerAllIn[game.currentPlayerIndex] == 1) {
             _nextPlayer(game);
             emit NextPlayerAction(
@@ -358,7 +363,7 @@ contract PokerChain {
     ) public validGameId(gameId) {
         Game storage game = games[gameId];
         require(_isValidAction(game), "Invalid raise action");
-        uint8 currentPlayerIndex = (game.currentPlayerIndex + 1) % MAX_PLAYERS;
+        uint8 currentPlayerIndex = game.currentPlayerIndex;
         if (game.isPlayerAllIn[game.currentPlayerIndex] == 1) {
             _nextPlayer(game);
             emit NextPlayerAction(
@@ -412,7 +417,7 @@ contract PokerChain {
     function checkAction(uint8 gameId) public validGameId(gameId) {
         Game storage game = games[gameId];
         require(_isValidAction(game), "Invalid check action");
-        uint8 currentPlayerIndex = (game.currentPlayerIndex + 1) % MAX_PLAYERS;
+        uint8 currentPlayerIndex = game.currentPlayerIndex;
         if (game.isPlayerAllIn[game.currentPlayerIndex] == 1) {
             _nextPlayer(game);
             emit NextPlayerAction(
@@ -426,7 +431,7 @@ contract PokerChain {
         }
         require(
             game.playerBetAmounts[game.currentPlayerIndex] == game.currentBet,
-            "Cannot check, must match current bet"
+            "Cannot check, must call to match the current bet"
         );
         game.playerActions[game.currentPlayerIndex] = PlayerAction.Check;
         game.isPlayerTakeTurn[game.currentPlayerIndex] = 1;
@@ -447,7 +452,7 @@ contract PokerChain {
     function foldAction(uint8 gameId) public validGameId(gameId) {
         Game storage game = games[gameId];
         require(_isValidAction(game), "Invalid fold action");
-        uint8 currentPlayerIndex = (game.currentPlayerIndex + 1) % MAX_PLAYERS;
+        uint8 currentPlayerIndex = game.currentPlayerIndex;
         if (game.isPlayerAllIn[game.currentPlayerIndex] == 1) {
             _nextPlayer(game);
             emit NextPlayerAction(
@@ -723,6 +728,11 @@ contract PokerChain {
             return;
         }
         _resetRound(gameId);
+        uint8[] memory tmpTable = new uint8[](5);
+        for (uint8 i = 0; i < 5; i++) {
+            tmpTable[i] = 255;
+        }
+        emit GameStateChanged(gameId, tmpTable);
     }
 
     /*
