@@ -1,5 +1,105 @@
 [
 	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint8",
+				"name": "gameId",
+				"type": "uint8"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "winner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint24",
+				"name": "winnings",
+				"type": "uint24"
+			}
+		],
+		"name": "GameEnded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint8",
+				"name": "gameId",
+				"type": "uint8"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint8[]",
+				"name": "communityCards",
+				"type": "uint8[]"
+			}
+		],
+		"name": "GameStateChanged",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint8",
+				"name": "gameId",
+				"type": "uint8"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "player",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint8",
+				"name": "actionType",
+				"type": "uint8"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint24",
+				"name": "amount",
+				"type": "uint24"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "nextPlayer",
+				"type": "address"
+			}
+		],
+		"name": "NextPlayerAction",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint8",
+				"name": "gameId",
+				"type": "uint8"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint24",
+				"name": "newPotSize",
+				"type": "uint24"
+			}
+		],
+		"name": "PotUpdated",
+		"type": "event"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "uint8",
@@ -42,7 +142,7 @@
 		"inputs": [
 			{
 				"internalType": "uint24",
-				"name": "smallBlind",
+				"name": "blindAmount",
 				"type": "uint24"
 			},
 			{
@@ -327,6 +427,11 @@
 			},
 			{
 				"internalType": "uint24",
+				"name": "blindAmount",
+				"type": "uint24"
+			},
+			{
+				"internalType": "uint24",
 				"name": "pot",
 				"type": "uint24"
 			},
@@ -334,6 +439,11 @@
 				"internalType": "enum PokerChain.GameStatus",
 				"name": "status",
 				"type": "uint8"
+			},
+			{
+				"internalType": "uint8[]",
+				"name": "",
+				"type": "uint8[]"
 			},
 			{
 				"internalType": "uint8",
@@ -344,16 +454,6 @@
 				"internalType": "uint8[]",
 				"name": "",
 				"type": "uint8[]"
-			},
-			{
-				"internalType": "uint8",
-				"name": "bigBlindPlayer",
-				"type": "uint8"
-			},
-			{
-				"internalType": "uint8",
-				"name": "smallBlindPlayer",
-				"type": "uint8"
 			}
 		],
 		"stateMutability": "view",
@@ -425,7 +525,7 @@
 				"type": "uint8"
 			}
 		],
-		"name": "getMyHoleCards",
+		"name": "getMyHand",
 		"outputs": [
 			{
 				"internalType": "uint8",
@@ -492,6 +592,11 @@
 				"internalType": "enum PokerChain.PlayerAction[]",
 				"name": "",
 				"type": "uint8[]"
+			},
+			{
+				"internalType": "uint24",
+				"name": "blindAmount",
+				"type": "uint24"
 			},
 			{
 				"internalType": "uint24",

@@ -3,9 +3,8 @@ import { ethers } from 'ethers';
 import { useNavigate } from 'react-router-dom';
 
 interface LoginProps {
-  setIsAuthenticated: (isAuthenticated: boolean) => void;
+    setIsAuthenticated: (isAuthenticated: boolean) => void;
 }
-
 const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
     const [account, setAccount] = useState('');
     const navigate = useNavigate();
@@ -15,9 +14,11 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
             try {
                 await window.ethereum.request({ method: 'eth_requestAccounts' });
                 const provider = new ethers.BrowserProvider(window.ethereum)
-                
+
                 const signer = await provider.getSigner();
                 const accountAddress = await signer.getAddress();
+                // set accountAddr to Storage
+                localStorage.setItem('accountAddr', accountAddress);
 
                 setAccount(accountAddress);
                 setIsAuthenticated(true);
