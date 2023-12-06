@@ -121,22 +121,25 @@ const Table: React.FC = () => {
         seed
       );
       await tx.wait();
+      setGameStatus(2);
       console.log("Game started");
     } catch (error) {
       alert(error);
     }
   };
-  useEffect(() => {
-    const fetchPlayerCards = async () => {
-      // console.log("fetchPlayerCards", contract)
-      if (contract) {
-        const playerCard = await contract.getMyHand(gameId);
-        // console.log("playerCards ->", playerCards);
-        setPlayerCards(playerCard);
-      }
-    }
-    fetchPlayerCards();
-  }, [gameId, contract])
+  // useEffect(() => {
+  //   const fetchPlayerCards = async () => {
+  //     // console.log("fetchPlayerCards", contract)
+  //     if (contract && gameId >= 0) {
+  //       try {
+  //         const playerCard = await contract.getMyHand(gameId);
+  //         // console.log("playerCards ->", playerCards);
+  //         setPlayerCards(playerCard);
+  //       } catch (error) {}
+  //     }
+  //   }
+  //   fetchPlayerCards();
+  // }, [gameId, contract, gameStatus])
 
   const check = async () => {
     if (contract) {
