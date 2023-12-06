@@ -1,6 +1,6 @@
 # PokerChain Contract Documentation
 
-## main.sol
+## main-v2.sol
 
 ## Smart Contract Overview
 `PokerChain` is a Solidity smart contract designed for running a decentralized Texas Hold'em poker game on the Ethereum blockchain. It features functionalities for game creation, player actions during the game, and managing poker rounds.
