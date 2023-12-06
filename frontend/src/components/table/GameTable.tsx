@@ -188,6 +188,107 @@ const Table: React.FC = () => {
     }
   }
 
+  const flop = async () => {
+    if (contract) {
+      try {
+        await contract.flop(gameId);
+        alert("Flop cards revealed");
+      }
+      catch (error) {
+        alert(error);
+      }
+    }
+  }
+
+  const turn = async () => {
+    if (contract) {
+      try {
+        await contract.turn(gameId);
+        alert("Turn card revealed");
+      }
+      catch (error) {
+        alert(error);
+      }
+    }
+  }
+
+  const river = async () => {
+    if (contract) {
+      try {
+        await contract.river(gameId);
+        alert("River card revealed");
+      }
+      catch (error) {
+        alert(error);
+      }
+    }
+  }
+
+  const showdown = async () => {
+    if (contract) {
+      try {
+        const [playerHands, winningCombinations, winnerIndices] = await contract.showdown(gameId);
+        const infoText = generatePlayerHandText(playerHands, winningCombinations);
+        const winnerText = winnerIndices.map((index: number) => `Player ${index + 1}`).join(", ");
+        alert("Showdown\n" + infoText + "\nWinner(s): " + winnerText);
+      }
+      catch (error) {
+        alert(error);
+      }
+    }
+  }
+
+  const clearTable = async () => {
+    if (contract) {
+      try {
+        await contract.clear(gameId);
+        alert("Table cleared, please start the next game");
+      }
+      catch (error) {
+        alert(error);
+      }
+    }
+  }
+
+  const cardNumberToRepresentation = (cardNumber: number) => {
+      if (cardNumber === 255) return "-";
+
+      const suits = ["H", "D", "C", "S"];
+      const values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
+
+      const suit = suits[Math.floor(cardNumber / 13)];
+      const value = values[cardNumber % 13];
+      return `${value}${suit}`;
+  };
+
+  const winningCombinationToName = (combinationNumber: number) => {
+    const combinationNames = [
+          "Eliminated",
+          "High Card",
+          "One Pair",
+          "Two Pair",
+          "Three of a Kind",
+          "Straight",
+          "Flush",
+          "Full House",
+          "Four of a Kind",
+          "Straight Flush",
+          "Royal Flush"
+      ];
+    return combinationNames[combinationNumber];
+  };
+
+  const generatePlayerHandText = (playerHands:Array<Array<number>>, winningCombinations:Array<number>) => {
+      const playerTexts = playerHands.map((hand, index) => {
+          const handRepresentation = hand.map(cardNumberToRepresentation).join(", ");
+          const winningName = winningCombinationToName(winningCombinations[index]);
+
+          return `Player ${index + 1}: ${handRepresentation} (${winningName})`;
+      });
+
+      return playerTexts.join("\n");
+  };
+
   const [value, setValue] = useState<number | any>(0);
 
   return (
@@ -218,6 +319,14 @@ const Table: React.FC = () => {
               <div style={{ marginBottom: "10px" }}>Previous player: {currentPlayer}</div>
               <div style={{ marginBottom: "10px" }}>Previous action: {gameStatusText}</div>
               <div>Current player: {nextPlayer}</div>
+          </div>
+          <div style={{ display:"flex", flexDirection:"row"}}>
+            <Button variant="light" style={{}} onClick={() => startGame(123)}>Start Game</Button>
+            <Button variant="light" style={{marginLeft:"10px"}} onClick={() => flop()}>Flop</Button>
+            <Button variant="light" style={{marginLeft:"10px"}} onClick={() => turn()}>Turn</Button>
+            <Button variant="light" style={{marginLeft:"10px"}} onClick={() => river()}>River</Button>
+            <Button variant="light" style={{marginLeft:"10px"}} onClick={() => showdown()}>Showdown</Button>
+            <Button variant="light" style={{marginLeft:"10px"}} onClick={() => clearTable()}>Clear Table</Button>
           </div>
           <Row className="mt-5">
             <Col>
